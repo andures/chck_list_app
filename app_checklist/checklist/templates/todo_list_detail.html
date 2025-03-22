@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ todo_list.name }} - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="todolist-section py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <h1 class="fw-bold">{{ todo_list.name }}</h1>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+          <a href="{% url 'add_task' todo_list.id %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Agregar Tarea
+          </a>
+          <a href="{% url 'todo_lists' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Board -->
+    <div class="task-board">
+      <div class="task-board-header">
+        <h2 class="mb-0 fs-4">Tablero de Tareas</h2>
+        <div>
+          <button id="theme-toggle" class="btn btn-sm btn-outline-light" title="Cambiar tema">
+            <i class="bi bi-moon-fill" id="theme-icon"></i>
+          </button>
+        </div>
+      </div>
+      <div class="task-board-content">
+        <!-- Por Hacer -->
+        <div class="task-column">
+          <div class="task-column-header">
+            <div>Por Hacer</div>
+            <div class="task-count">{{ tasks|length|default:'0' }}</div>
+          </div>
+          <div class="task-items" id="todo-column" data-status="todo">
+            {% for task in tasks %}
+              {% if task.status == 'todo' or task.status == 'por_hacer' %}
+                <div class="task-card" draggable="true" data-task-id="{{ task.id }}">
+                  <h6>{{ task.title }}</h6>
+                  <p>{{ task.description|truncatechars:100 }}</p>
+                  <div class="task-card-actions">
+                    <a href="{% url 'edit_task' todo_list.id task.id %}" class="task-action-btn edit-btn" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'delete_task' todo_list.id task.id %}" class="task-action-btn delete-btn" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- En Progreso -->
+        <div class="task-column">
+          <div class="task-column-header">
+            <div>En Progreso</div>
+            <div class="task-count">0</div>
+          </div>
+          <div class="task-items" id="in-progress-column" data-status="in_progress">
+            {% for task in tasks %}
+              {% if task.status == 'in_progress' or task.status == 'en_progreso' %}
+                <div class="task-card" draggable="true" data-task-id="{{ task.id }}">
+                  <h6>{{ task.title }}</h6>
+                  <p>{{ task.description|truncatechars:100 }}</p>
+                  <div class="task-card-actions">
+                    <a href="{% url 'edit_task' todo_list.id task.id %}" class="task-action-btn edit-btn" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'delete_task' todo_list.id task.id %}" class="task-action-btn delete-btn" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Completado -->
+        <div class="task-column">
+          <div class="task-column-header">
+            <div>Completado</div>
+            <div class="task-count">0</div>
+          </div>
+          <div class="task-items" id="done-column" data-status="done">
+            {% for task in tasks %}
+              {% if task.status == 'done' or task.status == 'completado' %}
+                <div class="task-card" draggable="true" data-task-id="{{ task.id }}">
+                  <h6>{{ task.title }}</h6>
+                  <p>{{ task.description|truncatechars:100 }}</p>
+                  <div class="task-card-actions">
+                    <a href="{% url 'edit_task' todo_list.id task.id %}" class="task-action-btn edit-btn" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'delete_task' todo_list.id task.id %}" class="task-action-btn delete-btn" title="Eliminar">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Toast container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar el tema
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+  
+  // Inicializar el tema
+  initTheme();
+  
+  // Función para inicializar el tema
+  function initTheme() {
+    // Verificar si hay un tema guardado en localStorage
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme === 'dark') {
+      document.body.setAttribute('data-bs-theme', 'dark');
+      themeIcon.classList.remove('bi-moon-fill');
+      themeIcon.classList.add('bi-sun-fill');
+    } else {
+      document.body.setAttribute('data-bs-theme', 'light');
+      themeIcon.classList.remove('bi-sun-fill');
+      themeIcon.classList.add('bi-moon-fill');
+    }
+  }
+  
+  // Botón para cambiar el tema
+  themeToggle.addEventListener('click', function() {
+    if (document.body.getAttribute('data-bs-theme') === 'dark') {
+      document.body.setAttribute('data-bs-theme', 'light');
+      localStorage.setItem('theme', 'light');
+      themeIcon.classList.remove('bi-sun-fill');
+      themeIcon.classList.add('bi-moon-fill');
+    } else {
+      document.body.setAttribute('data-bs-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      themeIcon.classList.remove('bi-moon-fill');
+      themeIcon.classList.add('bi-sun-fill');
+    }
+  });
+
+  // Drag and Drop Functionality
+  const taskCards = document.querySelectorAll('.task-card');
+  const taskColumns = document.querySelectorAll('.task-items');
+  
+  // Añadir eventos para drag and drop
+  taskCards.forEach(card => {
+    card.addEventListener('dragstart', dragStart);
+    card.addEventListener('dragend', dragEnd);
+  });
+  
+  taskColumns.forEach(column => {
+    column.addEventListener('dragover', dragOver);
+    column.addEventListener('dragenter', dragEnter);
+    column.addEventListener('dragleave', dragLeave);
+    column.addEventListener('drop', drop);
+  });
+  
+  // Funciones para drag and drop
+  function dragStart() {
+    this.classList.add('dragging');
+  }
+  
+  function dragEnd() {
+    this.classList.remove('dragging');
+  }
+  
+  function dragOver(e) {
+    e.preventDefault();
+  }
+  
+  function dragEnter(e) {
+    e.preventDefault();
+    this.classList.add('drag-over');
+  }
+  
+  function dragLeave() {
+    this.classList.remove('drag-over');
+  }
+  
+  function drop() {
+    this.classList.remove('drag-over');
+    const card = document.querySelector('.dragging');
+    this.appendChild(card);
+    
+    // Actualizar el estado de la tarea en el servidor
+    const taskId = card.getAttribute('data-task-id');
+    const newStatus = this.getAttribute('data-status');
+    
+    // Enviar la actualización al servidor
+    updateTaskStatus(taskId, newStatus);
+    
+    // Actualizar los contadores
+    updateTaskCounts();
+  }
+  
+  // Función para actualizar el estado de la tarea en el servidor
+  function updateTaskStatus(taskId, status) {
+    fetch(`/update-task-status/${taskId}/${status}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        showToast('Tarea actualizada correctamente', 'success');
+      } else {
+        showToast('Error al actualizar la tarea', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('Error al actualizar la tarea', 'error');
+    });
+  }
+  
+  // Función para obtener la cookie CSRF
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  
+  // Función para actualizar los contadores de tareas
+  function updateTaskCounts() {
+    const columns = document.querySelectorAll('.task-column');
+    
+    columns.forEach(column => {
+      const items = column.querySelector('.task-items');
+      const count = items.querySelectorAll('.task-card').length;
+      column.querySelector('.task-count').textContent = count.toString();
+    });
+  }
+  
+  // Inicializar contadores
+  updateTaskCounts();
+  
+  // Mostrar toast
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} show`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+      <div class="toast-body">
+        ${message}
+      </div>
+    `;
+    
+    const toastContainer = document.getElementById('toastContainer');
+    toastContainer.appendChild(toast);
+    
+    // Eliminar después de 3 segundos
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        toastContainer.removeChild(toast);
+      }, 300);
+    }, 3000);
+  }
+});
+</script>
+{% endblock %}

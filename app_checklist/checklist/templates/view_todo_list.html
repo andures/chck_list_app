@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ todo_list.name }} - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="todolist-section py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <h1 class="fw-bold">{{ todo_list.name }}</h1>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+          <a href="{% url 'add_task' todo_list.id %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Agregar Tarea
+          </a>
+          <a href="{% url 'todo_lists' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Volver
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-board">
+      <div class="task-board-header">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-list me-2"></i>
+          <span>Mis Tareas</span>
+        </div>
+      </div>
+      <div class="task-board-content">
+        <!-- Columna: Por Hacer -->
+        <div class="task-column">
+          <div class="task-column-header">
+            <span>Por Hacer</span>
+            <span class="task-count">{{ tasks.todo|length }}</span>
+          </div>
+          <div class="task-items" id="todo-tasks" data-column="todo">
+            {% for task in tasks.todo %}
+              <div class="task-card {% if task.is_late %}late-task{% elif task.is_due_today %}due-today-task{% endif %}" 
+                   id="task-{{ task.id }}" 
+                   draggable="true" 
+                   data-task-id="{{ task.id }}" 
+                   data-due-date="{% if task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
+                <div class="task-card-actions">
+                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <h6>{{ task.title }}</h6>
+                {% if task.description %}
+                  <p>{{ task.description }}</p>
+                {% endif %}
+                {% if task.due_date %}
+                  <p class="task-due-date {% if task.is_late %}text-danger{% elif task.is_due_today %}text-success{% endif %}">
+                    <i class="bi bi-calendar me-1"></i>{{ task.due_date|date:"d/m/Y H:i" }}
+                    {% if task.is_late %}
+                      <span class="badge bg-danger ms-1">Vencida</span>
+                    {% elif task.is_due_today %}
+                      <span class="badge bg-success ms-1">Hoy</span>
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Columna: En Progreso -->
+        <div class="task-column">
+          <div class="task-column-header">
+            <span>En Progreso</span>
+            <span class="task-count">{{ tasks.progress|length }}</span>
+          </div>
+          <div class="task-items" id="progress-tasks" data-column="progress">
+            {% for task in tasks.progress %}
+              <div class="task-card {% if task.is_late %}late-task{% elif task.is_due_today %}due-today-task{% endif %}" 
+                   id="task-{{ task.id }}" 
+                   draggable="true" 
+                   data-task-id="{{ task.id }}" 
+                   data-due-date="{% if task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
+                <div class="task-card-actions">
+                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <h6>{{ task.title }}</h6>
+                {% if task.description %}
+                  <p>{{ task.description }}</p>
+                {% endif %}
+                {% if task.due_date %}
+                  <p class="task-due-date {% if task.is_late %}text-danger{% elif task.is_due_today %}text-success{% endif %}">
+                    <i class="bi bi-calendar me-1"></i>{{ task.due_date|date:"d/m/Y H:i" }}
+                    {% if task.is_late %}
+                      <span class="badge bg-danger ms-1">Vencida</span>
+                    {% elif task.is_due_today %}
+                      <span class="badge bg-success ms-1">Hoy</span>
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Columna: Completado -->
+        <div class="task-column">
+          <div class="task-column-header">
+            <span>Completado</span>
+            <span class="task-count">{{ tasks.done|length }}</span>
+          </div>
+          <div class="task-items" id="done-tasks" data-column="done">
+            {% for task in tasks.done %}
+              <div class="task-card {% if task.is_late %}late-task{% elif task.is_due_today %}due-today-task{% endif %}" 
+                   id="task-{{ task.id }}" 
+                   draggable="true" 
+                   data-task-id="{{ task.id }}" 
+                   data-due-date="{% if task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
+                <div class="task-card-actions">
+                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <h6>{{ task.title }}</h6>
+                {% if task.description %}
+                  <p>{{ task.description }}</p>
+                {% endif %}
+                {% if task.due_date %}
+                  <p class="task-due-date {% if task.is_late %}text-danger{% elif task.is_due_today %}text-success{% endif %}">
+                    <i class="bi bi-calendar me-1"></i>{{ task.due_date|date:"d/m/Y H:i" }}
+                    {% if task.is_late %}
+                      <span class="badge bg-danger ms-1">Vencida</span>
+                    {% elif task.is_due_today %}
+                      <span class="badge bg-success ms-1">Hoy</span>
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal de confirmación para eliminar tarea -->
+<div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-labelledby="deleteTaskModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTaskModalLabel">Eliminar Tarea</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar esta tarea?</p>
+        <p class="text-danger">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/todolist.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Obtener todas las tareas
+    const tasks = document.querySelectorAll('.task-card');
+    
+    // Obtener la fecha actual en formato YYYY-MM-DD
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    
+    tasks.forEach(task => {
+      // Obtener la fecha de vencimiento de cada tarea
+      const dueDate = task.getAttribute('data-due-date');
+      
+      if (dueDate) {
+        const dueDateObj = new Date(dueDate);
+        dueDateObj.setHours(0, 0, 0, 0);
+        
+        // Comparar la fecha de vencimiento con la fecha actual
+        if (dueDateObj < today) {
+          task.classList.add('late-task');  // Agregar la clase 'late-task' si está vencida
+        } else if (dueDateObj.getTime() === today.getTime()) {
+          task.classList.add('due-today-task');  // Agregar la clase 'due-today-task' si es hoy
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

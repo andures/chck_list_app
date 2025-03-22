@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Agregar Tarea - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<!-- Incluir Font Awesome para los iconos -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block content %}
+<section class="form-section py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <h1 class="fw-bold">Agregar Tarea a "{{ todo_list.name }}"</h1>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <a href="{% url 'view_todo_list' todo_list.id %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Volver
+        </a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mx-auto">
+        <div class="form-card">
+          <div class="form-card-body">
+            <form method="post">
+              {% csrf_token %}
+              
+              <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.title.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.description.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3 position-relative">
+                <label for="{{ form.due_date.id_for_label }}" class="form-label">{{ form.due_date.label }}</label>
+                
+                <div class="input-group">
+                  <!-- Icono de calendario -->
+                  <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                  {{ form.due_date }}
+                </div>
+              
+                {% if form.due_date.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.due_date.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>              
+                            
+              <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.status.errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-check-lg me-2"></i>Agregar Tarea
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Botón para cambiar el tema -->
+<button class="theme-toggle" id="theme-toggle" title="Cambiar tema">
+  <i class="bi bi-moon-fill" id="theme-icon"></i>
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    
+    // Inicializar el tema
+    initTheme();
+    
+    // Función para inicializar el tema
+    function initTheme() {
+      // Verificar si hay un tema guardado en localStorage
+      const savedTheme = localStorage.getItem('theme');
+      
+      if (savedTheme === 'dark') {
+        document.body.setAttribute('data-bs-theme', 'dark');
+        themeIcon.classList.remove('bi-moon-fill');
+        themeIcon.classList.add('bi-sun-fill');
+      } else {
+        document.body.setAttribute('data-bs-theme', 'light');
+        themeIcon.classList.remove('bi-sun-fill');
+        themeIcon.classList.add('bi-moon-fill');
+      }
+    }
+    
+    // Botón para cambiar el tema
+    themeToggle.addEventListener('click', function() {
+      if (document.body.getAttribute('data-bs-theme') === 'dark') {
+        document.body.setAttribute('data-bs-theme', 'light');
+        localStorage.setItem('theme', 'light');
+        themeIcon.classList.remove('bi-sun-fill');
+        themeIcon.classList.add('bi-moon-fill');
+      } else {
+        document.body.setAttribute('data-bs-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        themeIcon.classList.remove('bi-moon-fill');
+        themeIcon.classList.add('bi-sun-fill');
+      }
+    });
+    
+    // Añadir clases de Bootstrap a los campos del formulario
+    const titleInput = document.getElementById('{{ form.title.id_for_label }}');
+    const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+    const statusInput = document.getElementById('{{ form.status.id_for_label }}');
+    
+    if (titleInput && !titleInput.classList.contains('form-control')) {
+      titleInput.classList.add('form-control');
+    }
+    
+    if (descriptionInput && !descriptionInput.classList.contains('form-control')) {
+      descriptionInput.classList.add('form-control');
+    }
+    
+    if (statusInput && !statusInput.classList.contains('form-select')) {
+      statusInput.classList.add('form-select');
+    }
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    flatpickr("#id_due_date", {
+      dateFormat: "Y-m-d",
+      locale: "es",
+    });
+  });
+</script>
+{% endblock %}
+

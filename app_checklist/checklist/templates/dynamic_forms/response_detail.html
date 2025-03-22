@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load form_tags %}
+
+{% block title %}Detalle de Respuesta - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/dynamic_forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="form-view-section py-5">
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <h1 class="fw-bold">Detalle de Respuesta</h1>
+      <p class="text-muted">
+        Formulario: {{ dynamic_form.title }} | 
+        Fecha: {{ response.created_at|date:"d/m/Y H:i" }} | 
+        Respondente: {% if response.respondent %}{{ response.respondent.username }}{% else %}Anónimo{% endif %}
+      </p>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <a href="{% url 'view_form_responses' dynamic_form.id %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver a Respuestas
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="form-preview-card">
+        {% for question in questions %}
+          <div class="question-preview-item">
+            <div class="question-text">
+              <h5>{{ question.text }}</h5>
+              {% if question.help_text %}
+                <p class="text-muted small">{{ question.help_text }}</p>
+              {% endif %}
+            </div>
+            
+            <div class="answer-content mt-3">
+              {% if question.id in answer_dict %}
+                {% with answer=answer_dict|get_item:question.id %}
+                  {% if question.question_type == 'short_text' or question.question_type == 'paragraph' or question.question_type == 'date' or question.question_type == 'time' or question.question_type == 'datetime' or question.question_type == 'linear_scale' %}
+                    <div class="answer-text">
+                      {% if answer.text_answer %}
+                        <p>{{ answer.text_answer }}</p>
+                      {% else %}
+                        <p class="text-muted">Sin respuesta</p>
+                      {% endif %}
+                    </div>
+                  
+                  {% elif question.question_type == 'multiple_choice' or question.question_type == 'dropdown' %}
+                    <div class="answer-options">
+                      {% if answer.selected_options.all %}
+                        <ul class="list-unstyled">
+                          {% for selected in answer.selected_options.all %}
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ selected.option.text }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <p class="text-muted">Sin respuesta</p>
+                      {% endif %}
+                    </div>
+                  
+                  {% elif question.question_type == 'checkbox' %}
+                    <div class="answer-options">
+                      {% if answer.selected_options.all %}
+                        <ul class="list-unstyled">
+                          {% for selected in answer.selected_options.all %}
+                            <li><i class="bi bi-check-square-fill text-success me-2"></i>{{ selected.option.text }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <p class="text-muted">Sin respuesta</p>
+                      {% endif %}
+                    </div>
+                  
+                  {% elif question.question_type == 'file_upload' %}
+                    <div class="answer-files">
+                      {% if answer.files.all %}
+                        <ul class="list-unstyled">
+                          {% for file in answer.files.all %}
+                            <li>
+                              <i class="bi bi-file-earmark me-2"></i>
+                              {% if file.file_url %}
+                                <a href="{{ file.file_url }}" target="_blank">{{ file.file_name }}</a>
+                              {% else %}
+                                <a href="{{ file.file.url }}" target="_blank">{{ file.file_name }}</a>
+                              {% endif %}
+                              <span class="text-muted small">({{ file.file_type }})</span>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <p class="text-muted">No se ha subido ningún archivo</p>
+                      {% endif %}
+                    </div>
+                  
+                  {% elif question.question_type == 'multiple_choice_grid' or question.question_type == 'checkbox_grid' %}
+                    <div class="answer-grid">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th></th>
+                            {% for column in question.columns_text.splitlines %}
+                              {% if column %}
+                                <th>{{ column }}</th>
+                              {% endif %}
+                            {% empty %}
+                              <th>Columna 1</th>
+                              <th>Columna 2</th>
+                            {% endfor %}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in question.rows_text.splitlines %}
+                            {% if row %}
+                              <tr>
+                                <td>{{ row }}</td>
+                                {% for column in question.columns_text.splitlines %}
+                                  {% if column %}
+                                    <td>
+                                      {% with row_col=forloop.parentloop.counter|stringformat:"s"|add:"_"|add:forloop.counter|stringformat:"s" %}
+                                        {% if answer.grid_answers|get_item:row_col %}
+                                          <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% else %}
+                                          <i class="bi bi-dash text-muted"></i>
+                                        {% endif %}
+                                      {% endwith %}
+                                    </td>
+                                  {% endif %}
+                                {% endfor %}
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  {% endif %}
+                {% endwith %}
+              {% else %}
+                <p class="text-muted">Sin respuesta</p>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Código adicional si es necesario
+});
+</script>
+{% endblock %}

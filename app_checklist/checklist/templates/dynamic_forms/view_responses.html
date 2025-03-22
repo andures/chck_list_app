@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Respuestas - {{ dynamic_form.title }} - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/dynamic_forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="form-view-section py-5">
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <h1 class="fw-bold">Respuestas: {{ dynamic_form.title }}</h1>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+        <a href="{% url 'view_form' dynamic_form.id %}" class="btn btn-primary">
+          <i class="bi bi-pencil-square me-2"></i>Editar Formulario
+        </a>
+        <a href="{% url 'preview_form' dynamic_form.id %}" class="btn btn-outline-primary">
+          <i class="bi bi-eye me-2"></i>Vista Previa
+        </a>
+        <a href="{% url 'dynamic_forms' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Volver
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3>Respuestas Recibidas</h3>
+        </div>
+        <div class="form-card-body p-0">
+          {% if responses %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Respondente</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for response in responses %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>
+                        {% if response.respondent %}
+                          {{ response.respondent.username }}
+                        {% else %}
+                          Anónimo
+                        {% endif %}
+                      </td>
+                      <td>{{ response.created_at|date:"d/m/Y H:i" }}</td>
+                      <td>
+                        <a href="{% url 'view_response_detail' response.id %}" class="btn btn-sm btn-primary">
+                          <i class="bi bi-eye me-1"></i>Ver Detalle
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <h3>No hay respuestas</h3>
+              <p>Aún no se han recibido respuestas para este formulario.</p>
+              <a href="{% url 'preview_form' dynamic_form.id %}" class="btn btn-primary">
+                <i class="bi bi-eye me-2"></i>Ver Formulario
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}

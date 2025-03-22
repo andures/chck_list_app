@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Eliminar Formulario - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/dynamic_forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="form-section py-5">
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="fw-bold">Eliminar Formulario</h1>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <a href="{% url 'view_form' dynamic_form.id %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <div class="delete-card">
+        <div class="form-card-body">
+          <h5 class="mb-3 fw-bold">¿Estás seguro de que deseas eliminar este formulario?</h5>
+          <p>Estás a punto de eliminar el formulario <strong>{{ dynamic_form.title }}</strong>.</p>
+          <p class="text-danger mb-4">Esta acción no se puede deshacer y eliminará todas las preguntas y respuestas asociadas.</p>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+              <a href="{% url 'view_form' dynamic_form.id %}" class="btn btn-outline-secondary">
+                Cancelar
+              </a>
+              <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash me-2"></i>Eliminar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+{% endblock %}

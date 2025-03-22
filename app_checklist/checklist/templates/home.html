@@ -1,0 +1,274 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <div class="hero-content">
+          <h1 class="display-4 fw-bold mb-4">Organize your tasks with intuitive drag and drop</h1>
+          <p class="lead mb-4">Create dynamic forms, checklists, and to-do lists with our powerful drag and drop interface. Stay organized and boost your productivity.</p>
+          <div class="d-flex flex-column flex-sm-row gap-3">
+            <a href="#" class="btn btn-primary btn-lg hero-btn">Try for free</a>
+            <a href="#" class="btn btn-outline-light btn-lg hero-btn-outline">Watch demo</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="task-board-demo">
+          <div class="task-board-header">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-list me-2"></i>
+              <span>My Tasks</span>
+            </div>
+            <i class="bi bi-gear"></i>
+          </div>
+          <div class="task-board-content">
+            <div class="task-column">
+              <div class="task-column-header">
+                <span>To Do</span>
+                <span class="task-count">3</span>
+              </div>
+              <div class="task-items">
+                <div class="task-card">
+                  <h6>Research competitors</h6>
+                  <p>Due tomorrow</p>
+                </div>
+                <div class="task-card">
+                  <h6>Create wireframes</h6>
+                  <p>Due in 3 days</p>
+                </div>
+                <div class="task-card">
+                  <h6>Update documentation</h6>
+                  <p>Due next week</p>
+                </div>
+              </div>
+            </div>
+            <div class="task-column">
+              <div class="task-column-header">
+                <span>In Progress</span>
+                <span class="task-count">2</span>
+              </div>
+              <div class="task-items">
+                <div class="task-card">
+                  <h6>Design landing page</h6>
+                  <p>Started yesterday</p>
+                </div>
+                <div class="task-card">
+                  <h6>Implement drag & drop</h6>
+                  <p>Started today</p>
+                </div>
+              </div>
+            </div>
+            <div class="task-column">
+              <div class="task-column-header">
+                <span>Completed</span>
+                <span class="task-count">2</span>
+              </div>
+              <div class="task-items">
+                <div class="task-card">
+                  <h6>Setup project</h6>
+                  <p>Completed 2 days ago</p>
+                </div>
+                <div class="task-card">
+                  <h6>Create user stories</h6>
+                  <p>Completed yesterday</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="add-task-button">
+          <i class="bi bi-plus-circle-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge rounded-pill text-bg-primary mb-3">Features</span>
+      <h2 class="display-5 fw-bold">Everything you need to stay organized</h2>
+      <p class="lead mx-auto" style="max-width: 700px;">Our platform offers powerful features to help you manage tasks, create forms, and organize your work efficiently.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </div>
+          <h3>Drag & Drop Interface</h3>
+          <p>Intuitively organize your tasks by dragging and dropping them between different lists and categories.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-check-circle-fill"></i>
+          </div>
+          <h3>Dynamic Checklists</h3>
+          <p>Create custom checklists with subtasks, due dates, and priority levels to track your progress.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <h3>Team Collaboration</h3>
+          <p>Share your lists with team members, assign tasks, and track progress together in real-time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="how-it-works py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge rounded-pill text-bg-primary mb-3">How It Works</span>
+      <h2 class="display-5 fw-bold">Simple, intuitive, and powerful</h2>
+      <p class="lead mx-auto" style="max-width: 700px;">Get started in minutes and transform the way you organize your tasks and projects.</p>
+    </div>
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <img src="https://placehold.co/600x400/6366F1/FFFFFF?text=DragTask+Demo" class="img-fluid rounded-4 shadow-lg" alt="DragTask interface demonstration">
+      </div>
+      <div class="col-lg-6">
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Create your lists</h3>
+              <p>Start by creating custom lists for different projects, areas of responsibility, or types of tasks.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Add and organize tasks</h3>
+              <p>Add tasks to your lists and organize them by dragging and dropping them into the right categories.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Track your progress</h3>
+              <p>Move tasks between lists as you work on them and mark them as complete when you're done.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Section -->
+<section id="pricing" class="pricing py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge rounded-pill text-bg-primary mb-3">Pricing</span>
+      <h2 class="display-5 fw-bold">Simple, transparent pricing</h2>
+      <p class="lead mx-auto" style="max-width: 700px;">Choose the plan that's right for you and start organizing your tasks today.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Free</h3>
+            <p>Perfect for individuals just getting started.</p>
+            <div class="pricing-price">
+              <span class="price">$0</span>
+              <span class="period">/month</span>
+            </div>
+          </div>
+          <div class="pricing-features">
+            <ul class="list-unstyled">
+              <li><i class="bi bi-check-circle-fill"></i> Up to 3 lists</li>
+              <li><i class="bi bi-check-circle-fill"></i> Basic drag & drop</li>
+              <li><i class="bi bi-check-circle-fill"></i> Personal use only</li>
+            </ul>
+          </div>
+          <a href="#" class="btn btn-outline-primary w-100">Get Started</a>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="pricing-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <div class="pricing-header">
+            <h3>Pro</h3>
+            <p>Perfect for professionals and small teams.</p>
+            <div class="pricing-price">
+              <span class="price">$9.99</span>
+              <span class="period">/month</span>
+            </div>
+          </div>
+          <div class="pricing-features">
+            <ul class="list-unstyled">
+              <li><i class="bi bi-check-circle-fill"></i> Unlimited lists</li>
+              <li><i class="bi bi-check-circle-fill"></i> Advanced drag & drop</li>
+              <li><i class="bi bi-check-circle-fill"></i> Team collaboration (up to 5)</li>
+              <li><i class="bi bi-check-circle-fill"></i> Custom templates</li>
+            </ul>
+          </div>
+          <a href="#" class="btn btn-primary w-100">Get Started</a>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Enterprise</h3>
+            <p>Perfect for large teams and organizations.</p>
+            <div class="pricing-price">
+              <span class="price">$24.99</span>
+              <span class="period">/month</span>
+            </div>
+          </div>
+          <div class="pricing-features">
+            <ul class="list-unstyled">
+              <li><i class="bi bi-check-circle-fill"></i> Everything in Pro</li>
+              <li><i class="bi bi-check-circle-fill"></i> Unlimited team members</li>
+              <li><i class="bi bi-check-circle-fill"></i> Advanced analytics</li>
+              <li><i class="bi bi-check-circle-fill"></i> Priority support</li>
+              <li><i class="bi bi-check-circle-fill"></i> Custom integrations</li>
+            </ul>
+          </div>
+          <a href="#" class="btn btn-outline-primary w-100">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta py-5">
+  <div class="container text-center">
+    <h2 class="display-5 fw-bold mb-4">Ready to transform the way you organize your tasks?</h2>
+    <p class="lead mb-5 mx-auto" style="max-width: 600px;">Join thousands of users who have already improved their productivity with DragTask.</p>
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <form class="cta-form">
+          <div class="input-group mb-3">
+            <input type="email" class="form-control form-control-lg" placeholder="Enter your email">
+            <button class="btn btn-primary btn-lg" type="submit">Get Started</button>
+          </div>
+          <small class="text-muted">Start your free trial. No credit card required.</small>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--js demo hero -->
+<script src="{% static 'js/demo-hero.js' %}"></script>
+{% endblock %}

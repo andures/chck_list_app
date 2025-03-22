@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mis Listas - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="todolist-section py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <h1 class="fw-bold">Mis Listas de Tareas</h1>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+          <a href="{% url 'create_todo_list' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Nueva Lista
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      {% if lists %}
+        {% for list in lists %}
+        <div class="col-md-4 mb-4">
+          <div class="list-card">
+            <div class="list-card-header">
+              <h3>{{ list.name }}</h3>
+              <div class="list-stats">
+                <span class="badge todo-badge">{{ list.todo_count }} tareas por hacer</span>
+                <span class="badge progress-badge">{{ list.progress_count }} en progreso</span>
+                <span class="badge done-badge">{{ list.done_count }} completadas</span>
+              </div>
+            </div>
+            <div class="list-card-actions">
+              <a href="{% url 'view_todo_list' list.id %}" class="btn btn-primary">
+                <i class="bi bi-eye me-2"></i>Ver
+              </a>
+              <a href="{% url 'delete_todo_list' list.id %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-2"></i>Eliminar
+              </a>
+            </div>
+          </div>
+        </div>
+    {% endfor %}
+    
+      {% else %}
+        <div class="col-12">
+          <div class="empty-state">
+            <i class="bi bi-clipboard-check"></i>
+            <h3>No tienes listas de tareas</h3>
+            <p>Crea tu primera lista para comenzar a organizar tus tareas.</p>
+            <a href="{% url 'create_todo_list' %}" class="btn btn-primary">
+              <i class="bi bi-plus-lg me-2"></i>Crear Lista
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Toast container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Código para mostrar toasts si es necesario
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type} show`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      
+      toast.innerHTML = `
+        <div class="toast-body">
+          ${message}
+        </div>
+      `;
+      
+      const toastContainer = document.getElementById('toastContainer');
+      toastContainer.appendChild(toast);
+      
+      // Eliminar después de 3 segundos
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toastContainer.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+  });
+</script>
+{% endblock %}

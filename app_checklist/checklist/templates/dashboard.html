@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <div class="container py-5">
+    <div class="row mb-4">
+      <div class="col-12">
+        <h1 class="dashboard-title">Bienvenido, {{ user.username }}</h1>
+        <p class="dashboard-subtitle">Selecciona una herramienta para comenzar a organizar tus tareas</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="tool-selector">
+          <div class="row g-4">
+            <!-- Todo List Card -->
+            <div class="col-md-4">
+              <div class="tool-card">
+                <div class="tool-icon">
+                  <i class="bi bi-kanban"></i>
+                </div>
+                <h3>Todo List</h3>
+                <p>Organiza tus tareas en columnas y arrastra para cambiar su estado.</p>
+                <div class="tool-features">
+                  <span class="feature-badge"><i class="bi bi-columns-gap"></i> Columnas</span>
+                  <span class="feature-badge"><i class="bi bi-arrow-left-right"></i> Drag & Drop</span>
+                  <span class="feature-badge"><i class="bi bi-calendar-check"></i> Fechas</span>
+                </div>
+                <!-- url 'create_todolist' -->
+                <a href="{% url 'todo_lists'%}" class="btn btn-primary w-100 mt-3">Crear Todo List</a>
+              </div>
+            </div>
+
+            <!-- Formulario Dinámico Card -->
+            <div class="col-md-4">
+              <div class="tool-card">
+                <div class="tool-icon">
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h3>Formulario Dinámico</h3>
+                <p>Crea formularios personalizados con diferentes tipos de preguntas y sube evidencias.</p>
+                <div class="tool-features">
+                  <span class="feature-badge"><i class="bi bi-question-circle"></i> Preguntas</span>
+                  <span class="feature-badge"><i class="bi bi-image"></i> Evidencias</span>
+                  <span class="feature-badge"><i class="bi bi-arrow-down-up"></i> Reordenar</span>
+                </div>
+                <!-- url 'create_form' -->
+                <a href="{% url 'dynamic_forms' %}" class="btn btn-primary w-100 mt-3">Crear Formulario</a>
+              </div>
+            </div>
+
+            <!-- Checklist Card -->
+            <div class="col-md-4">
+              <div class="tool-card">
+                <div class="tool-icon">
+                  <i class="bi bi-check2-square"></i>
+                </div>
+                <h3>Checklist</h3>
+                <p>Crea listas simples de verificación para marcar tareas como completadas.</p>
+                <div class="tool-features">
+                  <span class="feature-badge"><i class="bi bi-check-all"></i> Verificación</span>
+                  <span class="feature-badge"><i class="bi bi-arrow-down-up"></i> Reordenar</span>
+                  <span class="feature-badge"><i class="bi bi-list-check"></i> Simple</span>
+                </div>
+                <!-- url 'create_checklist' -->
+                <a href="#" class="btn btn-primary w-100 mt-3">Crear Checklist</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proyectos Recientes -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <h2 class="section-title">Proyectos Recientes</h2>
+        {% if recent_todo_lists %}
+          <ul class="list-group">
+            {% for todo_list in recent_todo_lists %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div class="project-info">
+                <h5 class="project-name">
+                  <a href="{% url 'view_todo_list' list_id=todo_list.id %}" class="fw-bold">
+                    {{ todo_list.name }}
+                  </a>
+                </h5>
+                <div class="project-details">
+                  <span class="badge bg-primary">
+                    {% if todo_list.type == 'todolist' %}
+                      Todo List
+                    {% elif todo_list.type == 'form' %}
+                      Formulario
+                    {% elif todo_list.type == 'checklist' %}
+                      Checklist
+                    {% endif %}
+                  </span>
+                  <p class="project-dates">
+                    <strong>Creado:</strong> {{ todo_list.created_at|date:"d/m/Y" }} 
+                    | 
+                    <strong>Última Modificación:</strong> {{ todo_list.updated_at|date:"d/m/Y" }}
+                  </p>
+                </div>
+              </div>
+              <div class="project-actions">
+                <div class="btn-group">
+                  <a href="{% url 'edit_task' task_id=todo_list.id %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a href="{% url 'view_todo_list' list_id=todo_list.id %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ todo_list.id }}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <!-- Estado vacío mejorado -->
+          <div class="empty-state text-center py-5">
+            <div class="d-flex flex-column align-items-center">
+              <i class="bi bi-folder-x text-danger display-4 mb-3"></i>
+              <h4 class="text-muted fw-bold">No tienes proyectos recientes</h4>
+              <p class="text-secondary">¡Empieza ahora creando tu primer proyecto!</p>
+              <a href="{% url 'create_todo_list' %}" class="btn btn-primary mt-3">
+                <i class="bi bi-plus-lg"></i> Crear Nuevo Proyecto
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- Modales de eliminación (uno por proyecto) -->
+{% for project in recent_projects %}
+<div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel{{ project.id }}">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar el proyecto "{{ project.name }}"? Esta acción no se puede deshacer.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <!-- url 'delete_project' project.id -->
+        <form action="#" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

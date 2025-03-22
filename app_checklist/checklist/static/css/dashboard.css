@@ -1,0 +1,258 @@
+/* Estilos para el Dashboard */
+.dashboard-container {
+    min-height: calc(100vh - 200px);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%);
+  }
+  
+  [data-bs-theme="dark"] .dashboard-container {
+    background: linear-gradient(135deg, rgba(45, 55, 72, 0.3) 0%, rgba(26, 32, 44, 0.3) 100%);
+  }
+  
+  .dashboard-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 10px;
+  }
+  
+  [data-bs-theme="dark"] .dashboard-title {
+    color: #f8fafc;
+  }
+  
+  .dashboard-subtitle {
+    color: #64748b;
+    font-size: 1.1rem;
+  }
+  
+  [data-bs-theme="dark"] .dashboard-subtitle {
+    color: #cbd5e1;
+  }
+  
+  /* Tarjetas de herramientas */
+  .tool-selector {
+    margin: 20px 0;
+  }
+  
+  .tool-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    text-align: center;
+  }
+  
+  [data-bs-theme="dark"] .tool-card {
+    background-color: #2d3748;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  
+  .tool-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .tool-card:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+  
+  .tool-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 2.5rem;
+  }
+  
+  .tool-card h3 {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 15px;
+  }
+  
+  [data-bs-theme="dark"] .tool-card h3 {
+    color: #f8fafc;
+  }
+  
+  .tool-card p {
+    color: #64748b;
+    margin-bottom: 20px;
+    min-height: 50px;
+  }
+  
+  [data-bs-theme="dark"] .tool-card p {
+    color: #cbd5e1;
+  }
+  
+  .tool-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+  
+  .feature-badge {
+    background-color: #f1f5f9;
+    color: #475569;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  [data-bs-theme="dark"] .feature-badge {
+    background-color: #1e293b;
+    color: #cbd5e1;
+  }
+  
+  /* Sección de proyectos recientes */
+  .section-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 10px;
+  }
+  
+  [data-bs-theme="dark"] .section-title {
+    color: #f8fafc;
+  }
+  
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border-radius: 3px;
+  }
+  
+  .project-table {
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  [data-bs-theme="dark"] .project-table {
+    background-color: #2d3748;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .project-table thead {
+    background-color: #f8fafc;
+  }
+  
+  [data-bs-theme="dark"] .project-table thead {
+    background-color: #1e293b;
+  }
+  
+  .project-table th {
+    font-weight: 600;
+    color: #475569;
+    border-bottom: none;
+    padding: 15px;
+  }
+  
+  [data-bs-theme="dark"] .project-table th {
+    color: #e2e8f0;
+  }
+  
+  .project-table td {
+    padding: 15px;
+    vertical-align: middle;
+    color: #1e293b;
+  }
+  
+  [data-bs-theme="dark"] .project-table td {
+    color: #f8fafc;
+  }
+  
+  .project-table .badge {
+    font-weight: 500;
+    padding: 6px 10px;
+  }
+  
+  /* Estado vacío */
+  .empty-state {
+    text-align: center;
+    padding: 50px 0;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  [data-bs-theme="dark"] .empty-state {
+    background-color: #2d3748;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .empty-image {
+    max-width: 200px;
+    margin-bottom: 20px;
+  }
+  
+  .empty-state p {
+    color: #64748b;
+    font-size: 1.1rem;
+  }
+  
+  [data-bs-theme="dark"] .empty-state p {
+    color: #cbd5e1;
+  }
+  
+  /* Modales */
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+  }
+  
+  [data-bs-theme="dark"] .modal-content {
+    background-color: #2d3748;
+    color: #f8fafc;
+  }
+  
+  .modal-header {
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  [data-bs-theme="dark"] .modal-header {
+    border-bottom: 1px solid #4a5568;
+  }
+  
+  .modal-footer {
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  [data-bs-theme="dark"] .modal-footer {
+    border-top: 1px solid #4a5568;
+  }
+  
+  /* Responsive */
+  @media (max-width: 767.98px) {
+    .tool-card {
+      padding: 20px;
+    }
+    
+    .tool-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 1.8rem;
+    }
+    
+    .tool-card p {
+      min-height: auto;
+    }
+  }

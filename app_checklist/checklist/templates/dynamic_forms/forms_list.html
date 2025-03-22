@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mis Formularios - DragTask{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/dynamic_forms.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="forms-section py-5">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <h1 class="fw-bold">Mis Formularios</h1>
+        <p class="text-muted">Crea y gestiona formularios dinámicos para recopilar información</p>
+      </div>
+      <div class="col-lg-4 text-lg-end">
+        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+          <a href="{% url 'create_form' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Nuevo Formulario
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      {% if forms %}
+        {% for form in forms %}
+          <div class="col-md-4 mb-4">
+            <div class="form-card h-100">
+              <div class="form-card-header">
+                <h3>{{ form.title }}</h3>
+                <div class="form-stats">
+                  <span class="badge form-badge">{{ form.questions.count }} preguntas</span>
+                  {% if form.is_published %}
+                    <span class="badge bg-success">Publicado</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Borrador</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="form-card-body">
+                <p>{{ form.description|truncatechars:100|default:"Sin descripción" }}</p>
+                <p class="text-muted small">Creado: {{ form.created_at|date:"d/m/Y" }}</p>
+              </div>
+              <div class="form-card-actions">
+                <a href="{% url 'view_form' form.id %}" class="btn btn-primary">
+                  <i class="bi bi-pencil-square me-2"></i>Editar
+                </a>
+                <a href="{% url 'preview_form' form.id %}" class="btn btn-outline-primary">
+                  <i class="bi bi-eye me-2"></i>Vista Previa
+                </a>
+                <a href="{% url 'delete_form' form.id %}" class="btn btn-outline-danger">
+                  <i class="bi bi-trash me-2"></i>Eliminar
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="empty-state">
+            <i class="bi bi-file-earmark-text"></i>
+            <h3>No tienes formularios</h3>
+            <p>Crea tu primer formulario para comenzar a recopilar información.</p>
+            <a href="{% url 'create_form' %}" class="btn btn-primary">
+              <i class="bi bi-plus-lg me-2"></i>Crear Formulario
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Toast container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Código para mostrar toasts si es necesario
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} show`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+      <div class="toast-body">
+        ${message}
+      </div>
+    `;
+    
+    const toastContainer = document.getElementById('toastContainer');
+    toastContainer.appendChild(toast);
+    
+    // Eliminar después de 3 segundos
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        toastContainer.removeChild(toast);
+      }, 300);
+    }, 3000);
+  }
+
+  // Mostrar toast si hay un mensaje en la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const message = urlParams.get('message');
+  const messageType = urlParams.get('type') || 'info';
+
+  if (message) {
+    showToast(message, messageType);
+  }
+});
+</script>
+{% endblock %}
