@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-_afwh4p-d_r5g!nk$tt=0l8mb3fo43zk%+kt=%wng3(yhyqfl=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -134,3 +135,5 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICSTORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
