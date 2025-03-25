@@ -1,0 +1,693 @@
+/* Estilos generales para formularios */
+.form-container {
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+  background-color: var(--bs-body-bg);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border: 1px solid var(--bs-border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Quitar el hover general */
+.form-container:hover {
+  transform: none;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="dark"] .form-container {
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .form-container:hover {
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+
+.form-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+}
+
+.form-body {
+  padding: 1.5rem;
+}
+
+.form-question {
+  border-radius: 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--bs-body-bg);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+/* Quitar el hover de form-question */
+.form-question:hover {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+  transform: none;
+}
+
+[data-bs-theme="dark"] .form-question:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.form-question.required {
+  border-left: 4px solid var(--danger);
+}
+
+.question-image {
+  border-radius: 0.5rem;
+  max-height: 300px;
+  object-fit: cover;
+  width: 100%;
+  border: 1px solid var(--bs-border-color);
+}
+
+.question-help {
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.attachment-section {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--bs-border-color);
+}
+
+.attachment-preview {
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  max-width: 100%;
+  border: 1px solid var(--bs-border-color);
+}
+
+/* Estilos para la escala lineal */
+.linear-scale-container {
+  margin: 1rem 0;
+}
+
+.scale-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Ocultar los inputs de radio originales */
+.scale-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Crear círculos personalizados para las opciones */
+.scale-option label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+/* Estilo cuando está seleccionado */
+.scale-option input[type="radio"]:checked + label {
+  background-color: var(--primary);
+  color: white;
+  transform: scale(1.05);
+  border-color: var(--primary);
+  box-shadow: 0 0.25rem 0.75rem rgba(99, 102, 241, 0.3);
+}
+
+/* Estilo al pasar el mouse */
+.scale-option label:hover {
+  background-color: var(--bs-primary-bg-subtle);
+  transform: scale(1.05);
+  border-color: var(--primary);
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+  font-weight: 500;
+}
+
+.min-label,
+.max-label {
+  max-width: 45%;
+}
+
+/* Vista previa de escala lineal en el editor */
+.linear-scale-preview {
+  padding: 1rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  margin-top: 1rem;
+  background-color: var(--bs-tertiary-bg);
+}
+
+.scale-preview-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.scale-preview-options span {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--bs-primary-bg-subtle);
+  color: var(--primary);
+  font-weight: 600;
+  border: 1px solid var(--primary);
+}
+
+.scale-preview-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+  font-weight: 500;
+}
+
+/* Estilos para las respuestas */
+.response-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Quitar el hover de response-card */
+.response-card:hover {
+  transform: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .response-card {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .response-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.response-header {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+}
+
+.response-body {
+  padding: 1.5rem;
+}
+
+.response-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.response-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.response-question {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.response-answer {
+  background-color: var(--bs-tertiary-bg);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--bs-border-color);
+}
+
+.response-media {
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--bs-border-color);
+}
+
+.response-media img,
+.response-media video {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}
+
+/* Estilos para la lista de formularios */
+.form-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-body-bg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Mantener el hover SOLO para las tarjetas en form_list.html */
+/* Aplicamos el hover solo a las tarjetas con la clase form-card */
+.form-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="dark"] .form-card {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .form-card:hover {
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+
+.form-card-body {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.form-card-footer {
+  padding: 1rem 1.5rem;
+  background-color: var(--bs-tertiary-bg);
+  border-top: 1px solid var(--bs-border-color);
+  margin-top: auto;
+}
+
+.form-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-status.published {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.form-status.draft {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #64748b;
+}
+
+/* Estilos para el editor de formularios */
+.question-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--bs-border-color);
+  background-color: var(--bs-body-bg);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Quitar el hover de question-card */
+.question-card:hover {
+  transform: none;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .question-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+.question-card-header {
+  padding: 1rem;
+  background-color: var(--bs-tertiary-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-card-body {
+  padding: 1.5rem;
+}
+
+.question-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  margin-right: 0.5rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--bs-border-color);
+  margin-bottom: 0.75rem;
+  background-color: var(--bs-body-bg);
+  transition: all 0.3s ease;
+}
+
+.option-item:hover {
+  background-color: var(--bs-tertiary-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.05);
+}
+
+.option-handle {
+  cursor: move;
+  margin-right: 0.75rem;
+  color: var(--bs-secondary-color);
+}
+
+.option-text {
+  flex-grow: 1;
+}
+
+.option-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Mejoras para formularios */
+.form-check-input:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.form-check-label {
+  cursor: pointer;
+  padding-left: 0.25rem;
+}
+
+.form-select,
+.form-control {
+  border-color: var(--bs-border-color);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  transition: all 0.3s ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Mejoras para botones */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-color: var(--primary);
+  box-shadow: 0 0.25rem 0.75rem rgba(99, 102, 241, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  border-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(99, 102, 241, 0.3);
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 0.25rem 0.75rem rgba(99, 102, 241, 0.2);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #0d9488);
+  border-color: var(--success);
+  box-shadow: 0 0.25rem 0.75rem rgba(16, 185, 129, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #0d9488, var(--success));
+  border-color: #0d9488;
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(16, 185, 129, 0.3);
+}
+
+/* Estilos para el modo oscuro */
+[data-bs-theme="dark"] .form-question {
+  background-color: var(--bs-tertiary-bg);
+}
+
+[data-bs-theme="dark"] .response-answer {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .scale-option label {
+  background-color: rgba(var(--bs-primary-rgb), 0.2);
+  color: var(--bs-primary-text-emphasis);
+}
+
+[data-bs-theme="dark"] .scale-option input[type="radio"]:checked + label {
+  background-color: var(--primary);
+  color: white;
+}
+
+[data-bs-theme="dark"] .linear-scale-preview {
+  background-color: var(--bs-tertiary-bg);
+}
+
+[data-bs-theme="dark"] .scale-preview-options span {
+  background-color: rgba(var(--bs-primary-rgb), 0.2);
+  color: var(--bs-primary-text-emphasis);
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .scale-options {
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .scale-option label {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .scale-labels {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  .min-label,
+  .max-label {
+    max-width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-card-footer .d-flex {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-card-footer .btn {
+    width: 100%;
+  }
+
+  .response-header h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Mejoras de accesibilidad */
+.form-text {
+  color: var(--bs-secondary-color);
+  margin-top: 0.25rem;
+}
+
+.text-danger {
+  color: var(--danger) !important;
+}
+
+/* Animación simple de fade-in */
+.animate-fade-in {
+  animation: simpleFadeIn 0.3s ease forwards;
+}
+
+@keyframes simpleFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mejoras para la lista de formularios */
+.row.g-4 {
+  margin-bottom: 3rem;
+}
+
+/* Asegurar que el footer se quede abajo */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main,
+.container {
+  flex: 1;
+}
+
+/* Estilos modernos para el botón de crear formulario */
+.btn-crear-formulario {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 0.5rem 1rem rgba(99, 102, 241, 0.2);
+}
+
+.btn-crear-formulario:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.75rem 1.5rem rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+}
+
+.btn-crear-formulario i {
+  font-size: 1.25rem;
+}
+
+/* Mejoras para las tarjetas de formularios */
+.form-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.form-card .card-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--bs-heading-color);
+}
+
+.datetime {
+  font-weight: 500;
+}
+
+/* Mejoras para los botones de acción */
+.form-card-footer .btn {
+  border-radius: 0.5rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.form-card-footer .btn i {
+  font-size: 1rem;
+}
+
+.form-card-footer .btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Estilos para el estado del formulario */
+.form-status {
+  position: relative;
+  top: -2px;
+}
+
+.form-status.published {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.form-status.draft {
+  background-color: rgba(148, 163, 184, 0.1);
+  color: #64748b;
+}
+
+/* Añadir hover a la página de agradecimiento */
+.form-container.animate-fade-in:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2);
+}
+
+[data-bs-theme="dark"] .form-container.animate-fade-in:hover {
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.5);
+}
+
+/* Botones de acción con solo iconos */
+.action-icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.action-icon-btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-outline-success.action-icon-btn:hover {
+  background-color: var(--success);
+  color: white;
+  box-shadow: 0 0.25rem 0.75rem rgba(16, 185, 129, 0.3);
+}
+
+.btn-outline-danger.action-icon-btn:hover {
+  background-color: var(--danger);
+  color: white;
+  box-shadow: 0 0.25rem 0.75rem rgba(220, 53, 69, 0.3);
+}

@@ -44,60 +44,62 @@ class Task(models.Model):
     class Meta:
         ordering = ['status', 'position']
 
-# Modelos para formularios dinámicos
-class DynamicForm(models.Model):
+# Modelos para Google Forms
+class GForm(models.Model):
+    """Modelo principal para formularios tipo Google Forms"""
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(default=now)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='gforms')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=False)
     
     def __str__(self):
         return self.title
+    
+    class Meta:
+        ordering = ['-updated_at']
 
-class Question(models.Model):
+class GQuestion(models.Model):
+    """Modelo para preguntas del formulario"""
     QUESTION_TYPES = (
-        ('short_text', 'Respuesta Corta'),
+        ('short_text', 'Texto Corto'),
         ('paragraph', 'Párrafo'),
         ('multiple_choice', 'Opción Múltiple'),
         ('checkbox', 'Casillas de Verificación'),
-        ('dropdown', 'Menú Desplegable'),
-        ('file_upload', 'Carga de Archivos'),
+        ('dropdown', 'Lista Desplegable'),
         ('linear_scale', 'Escala Lineal'),
-        ('multiple_choice_grid', 'Cuadrícula de Opción Múltiple'),
-        ('checkbox_grid', 'Cuadrícula de Casillas de Verificación'),
         ('date', 'Fecha'),
         ('time', 'Hora'),
-        ('datetime', 'Fecha y Hora'),
     )
     
-    form = models.ForeignKey(DynamicForm, on_delete=models.CASCADE, related_name='questions')
+    form = models.ForeignKey(GForm, on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=500)
-    question_type = models.CharField(max_length=30, choices=QUESTION_TYPES)
-    is_required = models.BooleanField(default=False)
-    position = models.IntegerField(default=0)
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
     help_text = models.CharField(max_length=255, blank=True, null=True)
+    is_required = models.BooleanField(default=False)
+    position = models.PositiveIntegerField(default=0)
     
-    # Campos específicos para tipos de preguntas
-    min_value = models.IntegerField(null=True, blank=True)  # Para escala lineal
-    max_value = models.IntegerField(null=True, blank=True)  # Para escala lineal
-    min_label = models.CharField(max_length=50, blank=True, null=True)  # Para escala lineal
-    max_label = models.CharField(max_length=50, blank=True, null=True)  # Para escala lineal
+    # Campos específicos para escala lineal
+    min_value = models.IntegerField(default=1, null=True, blank=True)
+    max_value = models.IntegerField(default=5, null=True, blank=True)
+    min_label = models.CharField(max_length=50, blank=True, null=True)
+    max_label = models.CharField(max_length=50, blank=True, null=True)
     
-    # Para cuadrículas
-    rows_text = models.TextField(blank=True, null=True)  # Filas separadas por saltos de línea
-    columns_text = models.TextField(blank=True, null=True)  # Columnas separadas por saltos de línea
+    # Imagen para la pregunta (opcional)
+    image = models.ImageField(upload_to='gform_question_images/', blank=True, null=True)
     
     def __str__(self):
-        return self.text
+        return f"{self.text} ({self.get_question_type_display()})"
     
     class Meta:
         ordering = ['position']
 
-class QuestionOption(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options')
+class GOption(models.Model):
+    """Modelo para opciones de preguntas de selección"""
+    question = models.ForeignKey(GQuestion, on_delete=models.CASCADE, related_name='options')
     text = models.CharField(max_length=255)
-    position = models.IntegerField(default=0)
+    position = models.PositiveIntegerField(default=0)
     
     def __str__(self):
         return self.text
@@ -105,35 +107,37 @@ class QuestionOption(models.Model):
     class Meta:
         ordering = ['position']
 
-class FormResponse(models.Model):
-    form = models.ForeignKey(DynamicForm, on_delete=models.CASCADE, related_name='responses')
-    respondent = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(default=now)
+class GResponse(models.Model):
+    """Modelo para respuestas al formulario"""
+    form = models.ForeignKey(GForm, on_delete=models.CASCADE, related_name='responses')
+    respondent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    respondent_email = models.EmailField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Respuesta a {self.form.title}"
+        return f"Respuesta a {self.form.title} ({self.created_at.strftime('%d/%m/%Y %H:%M')})"
+    
+    class Meta:
+        ordering = ['-created_at']
 
-class Answer(models.Model):
-    response = models.ForeignKey(FormResponse, on_delete=models.CASCADE, related_name='answers')
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class GAnswer(models.Model):
+    """Modelo para respuestas individuales a preguntas"""
+    response = models.ForeignKey(GResponse, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(GQuestion, on_delete=models.CASCADE)
     text_answer = models.TextField(blank=True, null=True)
+    
+    # Campos para archivos adjuntos en respuestas
+    image = models.ImageField(upload_to='gform_answer_images/', blank=True, null=True)
+    video = models.FileField(upload_to='gform_answer_videos/', blank=True, null=True)
+    file_url = models.URLField(blank=True, null=True)
     
     def __str__(self):
         return f"Respuesta a {self.question.text}"
 
-class SelectedOption(models.Model):
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='selected_options')
-    option = models.ForeignKey(QuestionOption, on_delete=models.CASCADE)
+class GSelectedOption(models.Model):
+    """Modelo para opciones seleccionadas en preguntas de selección"""
+    answer = models.ForeignKey(GAnswer, on_delete=models.CASCADE, related_name='selected_options')
+    option = models.ForeignKey(GOption, on_delete=models.CASCADE)
     
     def __str__(self):
         return f"Opción seleccionada: {self.option.text}"
-
-class AnswerFile(models.Model):
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='files')
-    file = models.FileField(upload_to='form_answers/')
-    file_name = models.CharField(max_length=255)
-    file_type = models.CharField(max_length=100)
-    file_url = models.URLField(blank=True, null=True)
-    
-    def __str__(self):
-        return self.file_name

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mis Formularios{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/forms_google.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Mis Formularios</h1>
+        <a href="{% url 'gform_create' %}" class="btn btn-crear-formulario">
+            <i class="bi bi-plus-lg"></i> Crear Formulario
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} animate-fade-in">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if forms %}
+    <div class="row g-4">
+        {% for form in forms %}
+        <div class="col-md-6 col-lg-4">
+            <div class="form-card shadow">
+                <div class="form-card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title">{{ form.title }}</h5>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'gform_view' form_id=form.id %}" class="btn btn-sm btn-outline-success action-icon-btn" title="Ver formulario">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'gform_delete' form_id=form.id %}" class="btn btn-sm btn-outline-danger action-icon-btn" title="Borrar formulario">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <p class="card-text text-muted small mb-0">
+                            <i class="bi bi-calendar3 me-1"></i> <span class="datetime" data-utc="{{ form.created_at|date:'c' }}">{{ form.created_at|date:"d/m/Y H:i" }}</span>
+                        </p>
+                        <span class="form-status {% if form.is_published %}published{% else %}draft{% endif %}">
+                            {% if form.is_published %}Publicado{% else %}Borrador{% endif %}
+                        </span>
+                    </div>
+                    <p class="card-text">
+                        {% if form.description %}
+                        {{ form.description|truncatechars:100 }}
+                        {% else %}
+                        <span class="text-muted fst-italic">Sin descripción</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="form-card-footer">
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'gform_edit' form_id=form.id %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                            <i class="bi bi-pencil me-1"></i> Editar
+                        </a>
+                        <a href="{% url 'gform_respond' form_id=form.id %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                            <i class="bi bi-pencil-square me-1"></i> Responder
+                        </a>
+                        <a href="{% url 'gform_responses' form_id=form.id %}" class="btn btn-sm btn-outline-info flex-grow-1">
+                            <i class="bi bi-bar-chart me-1"></i> Respuestas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card shadow p-5 text-center animate-fade-in">
+        <div class="py-5">
+            <i class="bi bi-file-earmark-text display-1 text-muted mb-4"></i>
+            <h3>No tienes formularios creados</h3>
+            <p class="text-muted mb-4">¡Crea tu primer formulario para comenzar a recopilar respuestas!</p>
+            <a href="{% url 'gform_create' %}" class="btn btn-crear-formulario btn-lg">
+                <i class="bi bi-plus-lg"></i> Crear Formulario
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/datetime-formatter.js' %}"></script>
+{% endblock %}

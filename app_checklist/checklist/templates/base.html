@@ -44,8 +44,8 @@
           </ul>
           <div class="d-flex gap-3 align-items-center">
             {% if user.is_authenticated %}
-              <!-- Avatar con iniciales y dropdown -->
-              <div class="dropdown">
+              <!-- Desktop View -->
+              <div class="dropdown d-none d-lg-block">
                 <a class="user-avatar dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   <div class="avatar-circle">
                     <span class="avatar-initials">{{ user.username|slice:":2"|upper }}</span>
@@ -80,16 +80,53 @@
                   </li>
                 </ul>
               </div>
+              
+              <!-- Mobile View -->
+              <div class="d-block d-lg-none w-100 mt-3">
+                <div class="mobile-user-info p-3 rounded">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-3">
+                      <span class="avatar-initials">{{ user.username|slice:":2"|upper }}</span>
+                    </div>
+                    <div>
+                      <div class="fw-bold">{{ user.username }}</div>
+                      <div class="small text-muted">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex flex-column gap-2 mt-3">
+                  <a href="{% url 'dashboard' %}" class="btn btn-outline-light w-100">
+                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                  </a>
+                  <a href="#" class="btn btn-outline-light w-100">
+                    <i class="bi bi-list-check me-2"></i>My Tasks
+                  </a>
+                  <form action="{% url 'logout' %}" method="post" class="w-100">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger w-100">
+                      <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </button>
+                  </form>
+                </div>
+              </div>
             {% else %}
-              <a href="{% url 'login' %}" class="btn btn-primary ">Log in</a>
-              <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
+              <!-- Login/Register Buttons -->
+              <div class="d-flex flex-column flex-lg-row gap-2">
+                <a href="{% url 'login' %}" class="btn btn-primary">Log in</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
+              </div>
             {% endif %}
             
-            <!-- Botón de modo oscuro -->
-            <button id="dark-mode-toggle" class="btn btn-outline-light d-flex align-items-center justify-content-center">
-              <i id="toggle-icon" class="bi bi-moon-fill fs-4 rotate-animation"></i>
+            <!-- Botón de modo oscuro - visible on desktop -->
+            <button id="dark-mode-toggle" class="btn btn-outline-light d-flex align-items-center justify-content-center d-none d-lg-flex">
+              <i id="toggle-icon" class="bi bi-moon-fill fs-4"></i>
             </button>
           </div>
+
+          <!-- Add the dark mode toggle button at the end of the mobile menu -->
+          <button id="dark-mode-toggle-mobile" class="btn btn-outline-light d-flex align-items-center justify-content-center mt-3 mx-auto d-lg-none">
+            <i id="toggle-icon-mobile" class="bi bi-moon-fill fs-4"></i>
+          </button>
         </div>
       </div>
     </nav>
@@ -99,7 +136,7 @@
   {% block content %}{% endblock %}
 
   <!-- Footer -->
-  <footer class="footer py-5">
+  <footer class="footer py-5 mt-auto">
     <div class="container">
       <div class="row g-4 mb-4">
         <div class="col-lg-4">
@@ -176,14 +213,19 @@
         document.documentElement.setAttribute("data-bs-theme", savedTheme);
 
         // Cambiar el ícono dependiendo del tema
-        const icon = document.getElementById("toggle-icon");
-        if (savedTheme === "dark") {
-          icon.classList.remove("bi-moon-fill");
-          icon.classList.add("bi-sun-fill");
-        } else {
-          icon.classList.remove("bi-sun-fill");
-          icon.classList.add("bi-moon-fill");
-        }
+        const icons = [document.getElementById("toggle-icon"), document.getElementById("toggle-icon-mobile")];
+        
+        icons.forEach(icon => {
+          if (icon) {
+            if (savedTheme === "dark") {
+              icon.classList.remove("bi-moon-fill");
+              icon.classList.add("bi-sun-fill");
+            } else {
+              icon.classList.remove("bi-sun-fill");
+              icon.classList.add("bi-moon-fill");
+            }
+          }
+        });
       }
     });
   </script>

@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -23,29 +25,28 @@ urlpatterns = [
     path('api/tasks/<int:task_id>/status/', views.update_task_status, name='update_task_status'),
     path('api/lists/<int:list_id>/order/', views.update_tasks_order, name='update_tasks_order'),
     
-    # Dynamic Forms
-    path('forms/', views.dynamic_forms, name='dynamic_forms'),
-    path('forms/create/', views.create_form, name='create_form'),
-    path('forms/<int:form_id>/', views.view_form, name='view_form'),
-    path('forms/<int:form_id>/delete/', views.delete_form, name='delete_form'),
-    path('forms/<int:form_id>/preview/', views.preview_form, name='preview_form'),
-    path('forms/<int:form_id>/submit/', views.submit_form_response, name='submit_form_response'),
-    path('forms/<int:form_id>/responses/', views.view_form_responses, name='view_form_responses'),
-    path('responses/<int:response_id>/', views.view_response_detail, name='view_response_detail'),
-    
-    # Questions
-    path('forms/<int:form_id>/add-question/', views.add_question, name='add_question'),
-    path('questions/<int:question_id>/edit/', views.edit_question, name='edit_question'),
-    path('questions/<int:question_id>/delete/', views.delete_question, name='delete_question'),
-    path('api/questions/<int:question_id>/', views.get_question_data, name='get_question_data'),
-    path('api/options/<int:option_id>/', views.get_option_data, name='get_option_data'),
-    
-    # Options
-    path('questions/<int:question_id>/add-option/', views.add_option, name='add_option'),
-    path('options/<int:option_id>/edit/', views.edit_option, name='edit_option'),
-    path('options/<int:option_id>/delete/', views.delete_option, name='delete_option'),
-    
-    # API for Dynamic Forms
-    path('api/forms/<int:form_id>/questions/order/', views.update_questions_order, name='update_questions_order'),
-    path('api/questions/<int:question_id>/options/order/', views.update_options_order, name='update_options_order'),
+    # Google Forms
+    path('forms/', views.gform_list, name='gform_list'),
+    path('forms/create/', views.gform_create, name='gform_create'),
+    path('forms/<int:form_id>/', views.gform_view, name='gform_view'),
+    path('forms/<int:form_id>/edit/', views.gform_edit, name='gform_edit'),
+    path('forms/<int:form_id>/delete/', views.gform_delete, name='gform_delete'),
+    path('forms/<int:form_id>/toggle-publish/', views.gform_toggle_publish, name='gform_toggle_publish'),
+    path('forms/<int:form_id>/responses/', views.gform_responses, name='gform_responses'),
+    path('forms/<int:form_id>/thank-you/', views.gform_thank_you, name='gform_thank_you'),
+    path('forms/<int:form_id>/respond/', views.gform_respond, name='gform_respond'),
+    path('forms/<int:form_id>/add-question/', views.gform_add_question, name='gform_add_question'),
+    path('forms/<int:form_id>/update-question-order/', views.gform_update_question_order, name='gform_update_question_order'),
+    path('forms/question/<int:question_id>/edit/', views.gform_edit_question, name='gform_edit_question'),
+    path('forms/question/<int:question_id>/delete/', views.gform_delete_question, name='gform_delete_question'),
+    path('forms/question/<int:question_id>/add-option/', views.gform_add_option, name='gform_add_option'),
+    path('forms/question/<int:question_id>/update-option-order/', views.gform_update_option_order, name='gform_update_option_order'),
+    path('forms/option/<int:option_id>/edit/', views.gform_edit_option, name='gform_edit_option'),
+    path('forms/option/<int:option_id>/delete/', views.gform_delete_option, name='gform_delete_option'),
+    path('forms/response/<int:response_id>/', views.gform_response_detail, name='gform_response_detail'),
+    path('forms/response/<int:response_id>/data/', views.gform_response_data, name='gform_response_data'),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

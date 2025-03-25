@@ -10,19 +10,30 @@
 {% block content %}
 <div class="dashboard-container">
   <div class="container py-5">
-    <div class="row mb-4">
+    <!-- Header de bienvenida -->
+    <div class="row mb-5">
       <div class="col-12">
-        <h1 class="dashboard-title">Bienvenido, {{ user.username }}</h1>
-        <p class="dashboard-subtitle">Selecciona una herramienta para comenzar a organizar tus tareas</p>
+        <div class="welcome-header">
+          <div class="welcome-content">
+            <h1 class="dashboard-title">Bienvenido, {{ user.username }}</h1>
+            <p class="dashboard-subtitle">Selecciona una herramienta para comenzar a organizar tus tareas</p>
+          </div>
+          <div class="welcome-decoration">
+            <div class="decoration-circle"></div>
+            <div class="decoration-circle"></div>
+            <div class="decoration-circle"></div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Tarjetas de herramientas -->
     <div class="row">
       <div class="col-12">
         <div class="tool-selector">
           <div class="row g-4">
             <!-- Todo List Card -->
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-4">
               <div class="tool-card">
                 <div class="tool-icon">
                   <i class="bi bi-kanban"></i>
@@ -34,13 +45,12 @@
                   <span class="feature-badge"><i class="bi bi-arrow-left-right"></i> Drag & Drop</span>
                   <span class="feature-badge"><i class="bi bi-calendar-check"></i> Fechas</span>
                 </div>
-                <!-- url 'create_todolist' -->
-                <a href="{% url 'todo_lists'%}" class="btn btn-primary w-100 mt-3">Crear Todo List</a>
+                <a href="{% url 'todo_lists' %}" class="btn btn-primary w-100 mt-3">Crear Todo List</a>
               </div>
             </div>
 
             <!-- Formulario Dinámico Card -->
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-4">
               <div class="tool-card">
                 <div class="tool-icon">
                   <i class="bi bi-file-earmark-text"></i>
@@ -52,13 +62,12 @@
                   <span class="feature-badge"><i class="bi bi-image"></i> Evidencias</span>
                   <span class="feature-badge"><i class="bi bi-arrow-down-up"></i> Reordenar</span>
                 </div>
-                <!-- url 'create_form' -->
-                <a href="{% url 'dynamic_forms' %}" class="btn btn-primary w-100 mt-3">Crear Formulario</a>
+                <a href="{% url 'gform_list' %}" class="btn btn-primary w-100 mt-3">Crear Formulario</a>
               </div>
             </div>
 
             <!-- Checklist Card -->
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-4">
               <div class="tool-card">
                 <div class="tool-icon">
                   <i class="bi bi-check2-square"></i>
@@ -70,7 +79,6 @@
                   <span class="feature-badge"><i class="bi bi-arrow-down-up"></i> Reordenar</span>
                   <span class="feature-badge"><i class="bi bi-list-check"></i> Simple</span>
                 </div>
-                <!-- url 'create_checklist' -->
                 <a href="#" class="btn btn-primary w-100 mt-3">Crear Checklist</a>
               </div>
             </div>
@@ -79,95 +87,273 @@
       </div>
     </div>
 
-    <!-- Proyectos Recientes -->
+    <!-- Secciones Recientes Mejoradas -->
+    <div class="row mt-5">
+      <!-- Todo Lists Recientes -->
+      <div class="col-lg-6 mb-4">
+        <div class="recent-section-card">
+          <div class="recent-section-header">
+            <h2 class="recent-section-title">
+              <i class="bi bi-list-check"></i>
+              Todo Lists Recientes
+            </h2>
+            <a href="{% url 'todo_lists' %}" class="view-all-button">
+              Ver todos <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+          
+          <div class="recent-section-content">
+            {% if recent_todo_lists %}
+              <div class="scrollable-cards-container">
+                {% for todo_list in recent_todo_lists %}
+                <div class="modern-card">
+                  <div class="modern-card-left">
+                    <div class="modern-card-icon">
+                      <i class="bi bi-kanban"></i>
+                    </div>
+                  </div>
+                  <div class="modern-card-content">
+                    <div class="modern-card-header">
+                      <h5 class="modern-card-title">
+                        <a href="{% url 'view_todo_list' list_id=todo_list.id %}">{{ todo_list.name }}</a>
+                      </h5>
+                      <span class="modern-card-date">
+                        <i class="bi bi-calendar3"></i> {{ todo_list.created_at|date:"d/m/Y" }}
+                      </span>
+                    </div>
+                    <div class="modern-card-body">
+                      <div class="modern-card-stats">
+                        <div class="stat-pill">
+                          <i class="stat-icon bi bi-list-task"></i>
+                          <span class="stat-value">{{ todo_list.tasks.count }}</span>
+                          <span class="stat-label">Tareas</span>
+                        </div>
+                        <div class="stat-pill">
+                          <i class="stat-icon bi bi-hourglass-split"></i>
+                          <span class="stat-value">{{ todo_list.tasks.filter.status.todo.count }}</span>
+                          <span class="stat-label">Pendientes</span>
+                        </div>
+                        <div class="stat-pill">
+                          <i class="stat-icon bi bi-check2-all"></i>
+                          <span class="stat-value">{{ todo_list.tasks.filter.status.done.count }}</span>
+                          <span class="stat-label">Completadas</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modern-card-actions">
+                      <a href="{% url 'view_todo_list' list_id=todo_list.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-eye"></i> Ver
+                      </a>
+                      <a href="{% url 'delete_todo_list' list_id=todo_list.id %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <i class="bi bi-list-task"></i>
+                </div>
+                <h4>No tienes Todo Lists recientes</h4>
+                <p>Crea tu primera lista para organizar tus tareas</p>
+                <a href="{% url 'create_todo_list' %}" class="btn btn-primary mt-2">
+                  <i class="bi bi-plus-lg"></i> Crear Todo List
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Formularios Recientes -->
+      <div class="col-lg-6 mb-4">
+        <div class="recent-section-card">
+          <div class="recent-section-header">
+            <h2 class="recent-section-title">
+              <i class="bi bi-file-earmark-text"></i>
+              Formularios Recientes
+            </h2>
+            <a href="{% url 'gform_list' %}" class="view-all-button">
+              Ver todos <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+          
+          <div class="recent-section-content">
+            {% if forms %}
+              <div class="scrollable-cards-container">
+                {% for form in forms %}
+                <div class="modern-card">
+                  <div class="modern-card-left">
+                    <div class="modern-card-icon form-icon">
+                      <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                  </div>
+                  <div class="modern-card-content">
+                    <div class="modern-card-header">
+                      <h5 class="modern-card-title">
+                        <a href="{% url 'gform_edit' form_id=form.id %}">{{ form.title }}</a>
+                      </h5>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="modern-card-date">
+                          <i class="bi bi-calendar3"></i> {{ form.created_at|date:"d/m/Y" }}
+                        </span>
+                        {% if form.is_published %}
+                          <span class="status-badge published">Publicado</span>
+                        {% else %}
+                          <span class="status-badge draft">Borrador</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                    <div class="modern-card-body">
+                      <div class="modern-card-stats">
+                        <div class="stat-pill">
+                          <i class="stat-icon bi bi-question-circle"></i>
+                          <span class="stat-value">{{ form.questions.count }}</span>
+                          <span class="stat-label">Preguntas</span>
+                        </div>
+                        <div class="stat-pill">
+                          <i class="stat-icon bi bi-reply-fill"></i>
+                          <span class="stat-value">{{ form.responses.count }}</span>
+                          <span class="stat-label">Respuestas</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modern-card-actions">
+                      <a href="{% url 'gform_edit' form_id=form.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Editar
+                      </a>
+                      <a href="{% url 'gform_view' form_id=form.id %}" class="btn btn-outline-primary">
+                        <i class="bi bi-eye"></i> Ver
+                      </a>
+                      <a href="{% url 'gform_responses' form_id=form.id %}" class="btn btn-outline-info">
+                        <i class="bi bi-bar-chart"></i> Respuestas
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h4>No tienes Formularios recientes</h4>
+                <p>Crea tu primer formulario para recopilar información</p>
+                <a href="{% url 'gform_create' %}" class="btn btn-primary mt-2">
+                  <i class="bi bi-plus-lg"></i> Crear Formulario
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas Generales Mejoradas -->
     <div class="row mt-5">
       <div class="col-12">
-        <h2 class="section-title">Proyectos Recientes</h2>
-        {% if recent_todo_lists %}
-          <ul class="list-group">
-            {% for todo_list in recent_todo_lists %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div class="project-info">
-                <h5 class="project-name">
-                  <a href="{% url 'view_todo_list' list_id=todo_list.id %}" class="fw-bold">
-                    {{ todo_list.name }}
-                  </a>
-                </h5>
-                <div class="project-details">
-                  <span class="badge bg-primary">
-                    {% if todo_list.type == 'todolist' %}
-                      Todo List
-                    {% elif todo_list.type == 'form' %}
-                      Formulario
-                    {% elif todo_list.type == 'checklist' %}
-                      Checklist
-                    {% endif %}
-                  </span>
-                  <p class="project-dates">
-                    <strong>Creado:</strong> {{ todo_list.created_at|date:"d/m/Y" }} 
-                    | 
-                    <strong>Última Modificación:</strong> {{ todo_list.updated_at|date:"d/m/Y" }}
-                  </p>
-                </div>
-              </div>
-              <div class="project-actions">
-                <div class="btn-group">
-                  <a href="{% url 'edit_task' task_id=todo_list.id %}" class="btn btn-sm btn-outline-primary">
-                    <i class="bi bi-pencil"></i>
-                  </a>
-                  <a href="{% url 'view_todo_list' list_id=todo_list.id %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-eye"></i>
-                  </a>
-                  <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ todo_list.id }}">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <!-- Estado vacío mejorado -->
-          <div class="empty-state text-center py-5">
-            <div class="d-flex flex-column align-items-center">
-              <i class="bi bi-folder-x text-danger display-4 mb-3"></i>
-              <h4 class="text-muted fw-bold">No tienes proyectos recientes</h4>
-              <p class="text-secondary">¡Empieza ahora creando tu primer proyecto!</p>
-              <a href="{% url 'create_todo_list' %}" class="btn btn-primary mt-3">
-                <i class="bi bi-plus-lg"></i> Crear Nuevo Proyecto
-              </a>
+        <div class="stats-container">
+          <div class="section-header">
+            <h2 class="section-title">Estadísticas Generales</h2>
+            <div class="section-icon">
+              <i class="bi bi-graph-up"></i>
             </div>
           </div>
-        {% endif %}
+          <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+              <div class="modern-stat">
+                <div class="stat-card-icon bg-primary">
+                  <i class="bi bi-list-check"></i>
+                </div>
+                <div class="stat-card-content">
+                  <h3 class="stat-card-title">{{ todo_lists.count }}</h3>
+                  <p class="stat-card-text">Todo Lists</p>
+                  <div class="stat-progress">
+                    <div class="progress">
+                      <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="modern-stat">
+                <div class="stat-card-icon bg-success">
+                  <i class="bi bi-check2-all"></i>
+                </div>
+                <div class="stat-card-content">
+                  <h3 class="stat-card-title">
+                    {% with completed_count=0 %}
+                      {% for list in todo_lists %}
+                        {% with done_tasks=list.tasks.filter.status.done.count %}
+                          {% with completed_count=completed_count|add:done_tasks %}{% endwith %}
+                        {% endwith %}
+                      {% endfor %}
+                      {{ completed_count }}
+                    {% endwith %}
+                  </h3>
+                  <p class="stat-card-text">Tareas Completadas</p>
+                  <div class="stat-progress">
+                    <div class="progress">
+                      <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="modern-stat">
+                <div class="stat-card-icon bg-info">
+                  <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <div class="stat-card-content">
+                  <h3 class="stat-card-title">{{ forms|length }}</h3>
+                  <p class="stat-card-text">Formularios</p>
+                  <div class="stat-progress">
+                    <div class="progress">
+                      <div class="progress-bar bg-info" role="progressbar" style="width: 100%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="modern-stat">
+                <div class="stat-card-icon bg-warning">
+                  <i class="bi bi-reply-fill"></i>
+                </div>
+                <div class="stat-card-content">
+                  <h3 class="stat-card-title">
+                    {% with response_count=0 %}
+                      {% for form in forms %}
+                        {% with form_responses=form.responses.count %}
+                          {% with response_count=response_count|add:form_responses %}{% endwith %}
+                        {% endwith %}
+                      {% endfor %}
+                      {{ response_count }}
+                    {% endwith %}
+                  </h3>
+                  <p class="stat-card-text">Respuestas Recibidas</p>
+                  <div class="stat-progress">
+                    <div class="progress">
+                      <div class="progress-bar bg-warning" role="progressbar" style="width: 100%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-
   </div>
 </div>
+{% endblock %}
 
-<!-- Modales de eliminación (uno por proyecto) -->
-{% for project in recent_projects %}
-<div class="modal fade" id="deleteModal{{ project.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ project.id }}" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel{{ project.id }}">Confirmar Eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ¿Estás seguro de que deseas eliminar el proyecto "{{ project.name }}"? Esta acción no se puede deshacer.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <!-- url 'delete_project' project.id -->
-        <form action="#" method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Eliminar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endfor %}
+{% block scripts %}
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import TodoList, Task, DynamicForm, Question, QuestionOption
+from .models import TodoList, Task, GForm, GQuestion, GOption
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -61,82 +61,140 @@ class TaskForm(forms.ModelForm):
             })
         }
 
-# Formularios para Dynamic Forms
-class DynamicFormForm(forms.ModelForm):
+# Formularios para Google Forms
+class GFormForm(forms.ModelForm):
+    """Formulario para crear/editar formularios"""
     class Meta:
-        model = DynamicForm
+        model = GForm
         fields = ['title', 'description', 'is_published']
         widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Título del formulario'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Descripción del formulario (opcional)',
-                'rows': 3
-            }),
-            'is_published': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            })
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Título del formulario'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripción (opcional)', 'rows': 3}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }
 
-class QuestionForm(forms.ModelForm):
+class GQuestionForm(forms.ModelForm):
+    """Formulario para crear/editar preguntas"""
     class Meta:
-        model = Question
-        fields = ['text', 'question_type', 'is_required', 'help_text', 
-                 'min_value', 'max_value', 'min_label', 'max_label',
-                 'rows_text', 'columns_text']
+        model = GQuestion
+        fields = ['text', 'question_type', 'help_text', 'is_required', 'min_value', 'max_value', 'min_label', 'max_label', 'image']
         widgets = {
-            'text': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Texto de la pregunta'
-            }),
-            'question_type': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'is_required': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'help_text': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Texto de ayuda (opcional)'
-            }),
-            'min_value': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Valor mínimo'
-            }),
-            'max_value': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Valor máximo'
-            }),
-            'min_label': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Etiqueta para valor mínimo'
-            }),
-            'max_label': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Etiqueta para valor máximo'
-            }),
-            'rows_text': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Filas (una por línea)',
-                'rows': 3
-            }),
-            'columns_text': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Columnas (una por línea)',
-                'rows': 3
-            }),
+            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de la pregunta'}),
+            'question_type': forms.Select(attrs={'class': 'form-select'}),
+            'help_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de ayuda (opcional)'}),
+            'is_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'min_value': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '10'}),
+            'max_value': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '10'}),
+            'min_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Etiqueta mínima'}),
+            'max_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Etiqueta máxima'}),
+            'image': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'})
         }
 
-class QuestionOptionForm(forms.ModelForm):
+class GOptionForm(forms.ModelForm):
+    """Formulario para crear/editar opciones"""
     class Meta:
-        model = QuestionOption
+        model = GOption
         fields = ['text']
         widgets = {
-            'text': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Texto de la opción'
-            })
+            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de la opción'})
         }
+
+class GFormResponseForm(forms.Form):
+    """Formulario dinámico para responder a un formulario"""
+    # Este formulario se construye dinámicamente en la vista
+    def __init__(self, *args, **kwargs):
+        form_instance = kwargs.pop('form_instance')
+        super(GFormResponseForm, self).__init__(*args, **kwargs)
+        
+        # Agregar campos dinámicamente basados en las preguntas del formulario
+        for question in form_instance.questions.all():
+            field_name = f'question_{question.id}'
+            
+            if question.question_type == 'short_text':
+                self.fields[field_name] = forms.CharField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    widget=forms.TextInput(attrs={'class': 'form-control'})
+                )
+            
+            elif question.question_type == 'paragraph':
+                self.fields[field_name] = forms.CharField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+                )
+            
+            elif question.question_type == 'multiple_choice':
+                choices = [(option.id, option.text) for option in question.options.all()]
+                self.fields[field_name] = forms.ChoiceField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    choices=choices,
+                    widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
+                )
+            
+            elif question.question_type == 'checkbox':
+                choices = [(option.id, option.text) for option in question.options.all()]
+                self.fields[field_name] = forms.MultipleChoiceField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    choices=choices,
+                    widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'})
+                )
+            
+            elif question.question_type == 'dropdown':
+                choices = [('', 'Selecciona una opción')] + [(option.id, option.text) for option in question.options.all()]
+                self.fields[field_name] = forms.ChoiceField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    choices=choices,
+                    widget=forms.Select(attrs={'class': 'form-select'})
+                )
+            
+            elif question.question_type == 'linear_scale':
+                min_val = question.min_value or 1
+                max_val = question.max_value or 5
+                choices = [(str(i), str(i)) for i in range(min_val, max_val + 1)]
+                self.fields[field_name] = forms.ChoiceField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    choices=choices,
+                    widget=forms.RadioSelect(attrs={'class': 'form-check-input scale-option'})
+                )
+            
+            elif question.question_type == 'date':
+                self.fields[field_name] = forms.DateField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
+                )
+            
+            elif question.question_type == 'time':
+                self.fields[field_name] = forms.TimeField(
+                    label=question.text,
+                    help_text=question.help_text,
+                    required=question.is_required,
+                    widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'})
+                )
+            
+            # Añadir campos para archivos adjuntos en respuestas
+            file_field_name = f'file_{question.id}'
+            self.fields[file_field_name] = forms.FileField(
+                label="Adjuntar imagen o video (opcional)",
+                required=False,
+                widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*,video/*'})
+            )
+            
+            url_field_name = f'url_{question.id}'
+            self.fields[url_field_name] = forms.URLField(
+                label="O proporciona una URL de imagen/video (opcional)",
+                required=False,
+                widget=forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://ejemplo.com/imagen.jpg'})
+            )

@@ -1,0 +1,922 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ gform.title }} - Editar - Google Forms Clone{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/forms_google.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <h1 class="fw-bold">{{ gform.title }}</h1>
+    </div>
+    <div class="col-lg-4 text-lg-end">
+      <!-- Añadir botón para responder directamente -->
+      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
+          <a href="{% url 'gform_view' gform.id %}" class="btn btn-primary">
+              <i class="bi bi-eye me-2"></i>Vista Previa
+          </a>
+          <a href="{% url 'gform_respond' form_id=gform.id %}" class="btn btn-outline-primary">
+              <i class="bi bi-pencil-square me-2"></i>Responder
+          </a>
+          <a href="{% url 'gform_responses' gform.id %}" class="btn btn-outline-primary">
+              <i class="bi bi-bar-chart me-2"></i>Respuestas
+          </a>
+          <a href="{% url 'gform_list' %}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-2"></i>Volver
+          </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalles del Formulario -->
+  <div class="row mb-4">
+    <div class="col-lg-8 mx-auto">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h3 class="card-title mb-0">Detalles del Formulario</h3>
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'gform_edit' gform.id %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}" class="form-label">Título del formulario *</label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.title.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="mb-3">
+              <label for="{{ form.description.id_for_label }}" class="form-label">Descripción (opcional)</label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.description.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="mb-3 form-check">
+              {{ form.is_published }}
+              <label for="{{ form.is_published.id_for_label }}" class="form-check-label">Publicar formulario</label>
+              {% if form.is_published.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in form.is_published.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Estado de publicación -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">Estado: 
+                {% if gform.is_published %}
+                  <span class="badge bg-success">Publicado</span>
+                {% else %}
+                  <span class="badge bg-secondary">Borrador</span>
+                {% endif %}
+              </h5>
+              <p class="text-muted mb-0">
+                {% if gform.is_published %}
+                  El formulario está disponible para recibir respuestas.
+                {% else %}
+                  El formulario no está disponible para el público.
+                {% endif %}
+              </p>
+            </div>
+            <form method="post" action="{% url 'gform_toggle_publish' gform.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn {% if gform.is_published %}btn-outline-secondary{% else %}btn-success{% endif %}">
+                {% if gform.is_published %}
+                  <i class="bi bi-eye-slash me-2"></i>Despublicar
+                {% else %}
+                  <i class="bi bi-eye me-2"></i>Publicar
+                {% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preguntas del Formulario -->
+      <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h3 class="card-title mb-0">Preguntas</h3>
+          <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+            <i class="bi bi-plus-lg me-2"></i>Añadir Pregunta
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="questionsList">
+            {% if questions %}
+              {% for question in questions %}
+                <div class="card mb-3 question-card" data-id="{{ question.id }}">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <span class="badge bg-info">{{ question.get_question_type_display }}</span>
+                      {% if question.is_required %}
+                        <span class="badge bg-danger ms-1">Obligatorio</span>
+                      {% endif %}
+                    </div>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-sm btn-outline-primary edit-question-btn" data-id="{{ question.id }}">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-danger delete-question-btn" data-id="{{ question.id }}">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">{{ question.text }}</h5>
+                    {% if question.help_text %}
+                      <p class="text-muted small">{{ question.help_text }}</p>
+                    {% endif %}
+                    
+                    {% if question.image %}
+                      <div class="mt-2 mb-3">
+                        <img src="{{ question.image.url }}" alt="Imagen de la pregunta" class="img-fluid rounded" style="max-height: 200px;">
+                      </div>
+                    {% endif %}
+                    
+                    <!-- Opciones para preguntas de selección -->
+                    {% if question.question_type in 'multiple_choice,checkbox,dropdown' %}
+                      <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <h6 class="mb-0">Opciones:</h6>
+                          <button type="button" class="btn btn-sm btn-outline-primary add-option-btn" data-question-id="{{ question.id }}">
+                            <i class="bi bi-plus-lg"></i> Añadir opción
+                          </button>
+                        </div>
+                        
+                        <div class="options-list" data-question-id="{{ question.id }}">
+                          {% for option in question.options.all %}
+                            <div class="option-item d-flex align-items-center p-2 border rounded mb-2" data-id="{{ option.id }}">
+                              <div class="option-handle me-2"><i class="bi bi-grip-vertical"></i></div>
+                              <div class="option-text flex-grow-1">{{ option.text }}</div>
+                              <div class="option-actions">
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-option-btn" data-id="{{ option.id }}">
+                                  <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-option-btn" data-id="{{ option.id }}">
+                                  <i class="bi bi-trash"></i>
+                                </button>
+                              </div>
+                            </div>
+                          {% empty %}
+                            <div class="text-muted text-center py-3">
+                              No hay opciones definidas. Añade opciones para esta pregunta.
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
+                    
+                    <!-- Configuración específica para escala lineal -->
+                    {% if question.question_type == 'linear_scale' %}
+                      <div class="mt-3 p-3 bg-light rounded">
+                        <h6 class="mb-2">Configuración de escala:</h6>
+                        <div class="row">
+                          <div class="col-6">
+                            <p class="mb-1"><strong>Valor mínimo:</strong> {{ question.min_value|default:"1" }}</p>
+                            <p class="mb-1"><strong>Etiqueta mínima:</strong> {{ question.min_label|default:"" }}</p>
+                          </div>
+                          <div class="col-6">
+                            <p class="mb-1"><strong>Valor máximo:</strong> {{ question.max_value|default:"5" }}</p>
+                            <p class="mb-1"><strong>Etiqueta máxima:</strong> {{ question.max_label|default:"" }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-center py-5">
+                <i class="bi bi-question-circle fs-1 text-primary mb-3"></i>
+                <h3>No hay preguntas en este formulario</h3>
+                <p class="text-muted">Haz clic en "Añadir Pregunta" para empezar a crear tu formulario.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Modal para añadir preguntas -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="addQuestionModalLabel">Añadir Nueva Pregunta</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <form id="addQuestionForm" method="post" action="{% url 'gform_add_question' gform.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="id_text" class="form-label">Texto de la pregunta *</label>
+          <input type="text" name="text" id="id_text" class="form-control" placeholder="Escribe tu pregunta" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="id_question_type" class="form-label">Tipo de pregunta *</label>
+          <select name="question_type" id="id_question_type" class="form-select" required>
+            <option value="">Selecciona un tipo</option>
+            <option value="short_text">Texto Corto</option>
+            <option value="paragraph">Párrafo</option>
+            <option value="multiple_choice">Opción Múltiple</option>
+            <option value="checkbox">Casillas de Verificación</option>
+            <option value="dropdown">Lista Desplegable</option>
+            <option value="linear_scale">Escala Lineal</option>
+            <option value="date">Fecha</option>
+            <option value="time">Hora</option>
+          </select>
+        </div>
+        
+        <div class="mb-3">
+          <label for="id_help_text" class="form-label">Texto de ayuda (opcional)</label>
+          <input type="text" name="help_text" id="id_help_text" class="form-control" placeholder="Texto de ayuda para el usuario">
+        </div>
+        
+        <div class="mb-3">
+          <label for="id_image" class="form-label">Imagen (opcional)</label>
+          <input type="file" name="image" id="id_image" class="form-control" accept="image/*">
+        </div>
+        
+        <div class="mb-3 form-check">
+          <input type="checkbox" name="is_required" id="id_is_required" class="form-check-input">
+          <label for="id_is_required" class="form-check-label">Obligatorio</label>
+        </div>
+        
+        <!-- Campos específicos para escala lineal -->
+        <div id="linearScaleFields" class="d-none">
+          <hr>
+          <h6>Configuración de escala lineal</h6>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="id_min_value" class="form-label">Valor mínimo</label>
+                <input type="number" name="min_value" id="id_min_value" class="form-control" value="1" min="0" max="10">
+              </div>
+              <div class="mb-3">
+                <label for="id_min_label" class="form-label">Etiqueta para valor mínimo (opcional)</label>
+                <input type="text" name="min_label" id="id_min_label" class="form-control" placeholder="Ej: Muy insatisfecho" value="Muy insatisfecho">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="id_max_value" class="form-label">Valor máximo</label>
+                <input type="number" name="max_value" id="id_max_value" class="form-control" value="5" min="1" max="10">
+              </div>
+              <div class="mb-3">
+                <label for="id_max_label" class="form-label">Etiqueta para valor máximo (opcional)</label>
+                <input type="text" name="max_label" id="id_max_label" class="form-control" placeholder="Ej: Muy satisfecho" value="Muy satisfecho">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Vista previa de la escala -->
+          <div class="mt-3">
+            <h6 class="mb-2">Vista previa:</h6>
+            <div class="linear-scale-preview">
+              <div class="scale-preview-options">
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>4</span>
+                <span>5</span>
+              </div>
+              <div class="scale-preview-labels">
+                <span id="preview-min-label">Muy insatisfecho</span>
+                <span id="preview-max-label">Muy satisfecho</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="saveQuestionBtn">Guardar Pregunta</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal para editar preguntas -->
+<div class="modal fade" id="editQuestionModal" tabindex="-1" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="editQuestionModalLabel">Editar Pregunta</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <form id="editQuestionForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="edit_text" class="form-label">Texto de la pregunta *</label>
+          <input type="text" name="text" id="edit_text" class="form-control" placeholder="Escribe tu pregunta" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="edit_question_type" class="form-label">Tipo de pregunta *</label>
+          <select name="question_type" id="edit_question_type" class="form-select" required>
+            <option value="short_text">Texto Corto</option>
+            <option value="paragraph">Párrafo</option>
+            <option value="multiple_choice">Opción Múltiple</option>
+            <option value="checkbox">Casillas de Verificación</option>
+            <option value="dropdown">Lista Desplegable</option>
+            <option value="linear_scale">Escala Lineal</option>
+            <option value="date">Fecha</option>
+            <option value="time">Hora</option>
+          </select>
+        </div>
+        
+        <div class="mb-3">
+          <label for="edit_help_text" class="form-label">Texto de ayuda (opcional)</label>
+          <input type="text" name="help_text" id="edit_help_text" class="form-control" placeholder="Texto de ayuda para el usuario">
+        </div>
+        
+        <div class="mb-3">
+          <label for="edit_image" class="form-label">Imagen (opcional)</label>
+          <input type="file" name="image" id="edit_image" class="form-control" accept="image/*">
+          <div id="current_image_preview" class="mt-2"></div>
+        </div>
+        
+        <div class="mb-3 form-check">
+          <input type="checkbox" name="is_required" id="edit_is_required" class="form-check-input">
+          <label for="edit_is_required" class="form-check-label">Obligatorio</label>
+        </div>
+        
+        <!-- Campos específicos para escala lineal -->
+        <div id="editLinearScaleFields" class="d-none">
+          <hr>
+          <h6>Configuración de escala lineal</h6>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="edit_min_value" class="form-label">Valor mínimo</label>
+                <input type="number" name="min_value" id="edit_min_value" class="form-control" value="1" min="0" max="10">
+              </div>
+              <div class="mb-3">
+                <label for="edit_min_label" class="form-label">Etiqueta para valor mínimo (opcional)</label>
+                <input type="text" name="min_label" id="edit_min_label" class="form-control" placeholder="Ej: Muy insatisfecho" value="Muy insatisfecho">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="edit_max_value" class="form-label">Valor máximo</label>
+                <input type="number" name="max_value" id="edit_max_value" class="form-control" value="5" min="1" max="10">
+              </div>
+              <div class="mb-3">
+                <label for="edit_max_label" class="form-label">Etiqueta para valor máximo (opcional)</label>
+                <input type="text" name="max_label" id="edit_max_label" class="form-control" placeholder="Ej: Muy satisfecho" value="Muy satisfecho">
+              </div>
+            </div>
+          </div>
+        
+          <!-- Vista previa de la escala -->
+          <div class="mt-3">
+            <h6 class="mb-2">Vista previa:</h6>
+            <div class="linear-scale-preview">
+              <div class="scale-preview-options">
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>4</span>
+                <span>5</span>
+              </div>
+              <div class="scale-preview-labels">
+                <span id="edit-preview-min-label">Muy insatisfecho</span>
+                <span id="edit-preview-max-label">Muy satisfecho</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="updateQuestionBtn">Actualizar Pregunta</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal para añadir opciones -->
+<div class="modal fade" id="addOptionModal" tabindex="-1" aria-labelledby="addOptionModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="addOptionModalLabel">Añadir Opción</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <form id="addOptionForm" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="option_question_id" name="question_id">
+        
+        <div class="mb-3">
+          <label for="option_text" class="form-label">Texto de la opción *</label>
+          <input type="text" name="text" id="option_text" class="form-control" placeholder="Escribe el texto de la opción" required>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="saveOptionBtn">Guardar Opción</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal para editar opciones -->
+<div class="modal fade" id="editOptionModal" tabindex="-1" aria-labelledby="editOptionModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="editOptionModalLabel">Editar Opción</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <form id="editOptionForm" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="edit_option_id" name="option_id">
+        
+        <div class="mb-3">
+          <label for="edit_option_text" class="form-label">Texto de la opción *</label>
+          <input type="text" name="text" id="edit_option_text" class="form-control" placeholder="Escribe el texto de la opción" required>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="updateOptionBtn">Actualizar Opción</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar eliminación</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p id="deleteConfirmText">¿Estás seguro de que deseas eliminar este elemento?</p>
+      <p class="text-danger">Esta acción no se puede deshacer.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Mostrar/ocultar campos específicos según el tipo de pregunta
+const questionType = document.getElementById('id_question_type');
+const linearScaleFields = document.getElementById('linearScaleFields');
+
+if (questionType) {
+  questionType.addEventListener('change', function() {
+    if (this.value === 'linear_scale') {
+      linearScaleFields.classList.remove('d-none');
+      updateScalePreview();
+    } else {
+      linearScaleFields.classList.add('d-none');
+    }
+  });
+}
+
+// Sortable para la lista de preguntas
+const questionsList = document.getElementById('questionsList');
+if (questionsList) {
+  new Sortable(questionsList, {
+    animation: 150,
+    handle: '.card-header',
+    onEnd: function() {
+      // Obtener el nuevo orden
+      const questions = document.querySelectorAll('.question-card');
+      const questionIds = Array.from(questions).map(q => q.dataset.id);
+      
+      // Enviar el nuevo orden al servidor
+      updateQuestionsOrder(questionIds);
+    }
+  });
+}
+
+// Sortable para las listas de opciones
+document.querySelectorAll('.options-list').forEach(container => {
+  new Sortable(container, {
+    animation: 150,
+    handle: '.option-handle',
+    onEnd: function(evt) {
+      // Obtener el ID de la pregunta
+      const questionId = evt.target.dataset.questionId;
+      
+      // Obtener el nuevo orden
+      const options = evt.target.querySelectorAll('.option-item');
+      const optionIds = Array.from(options).map(o => o.dataset.id);
+      
+      // Enviar el nuevo orden al servidor
+      updateOptionsOrder(questionId, optionIds);
+    }
+  });
+});
+
+// Añadir pregunta
+const saveQuestionBtn = document.getElementById('saveQuestionBtn');
+const addQuestionForm = document.getElementById('addQuestionForm');
+
+if (saveQuestionBtn) {
+  saveQuestionBtn.addEventListener('click', function() {
+    if (addQuestionForm.checkValidity()) {
+      addQuestionForm.submit();
+    } else {
+      addQuestionForm.reportValidity();
+    }
+  });
+}
+
+// Editar pregunta
+const updateQuestionBtn = document.getElementById('updateQuestionBtn');
+const editQuestionForm = document.getElementById('editQuestionForm');
+const editQuestionType = document.getElementById('edit_question_type');
+const editLinearScaleFields = document.getElementById('editLinearScaleFields');
+
+if (editQuestionType) {
+  editQuestionType.addEventListener('change', function() {
+    if (this.value === 'linear_scale') {
+      editLinearScaleFields.classList.remove('d-none');
+      updateEditScalePreview();
+    } else {
+      editLinearScaleFields.classList.add('d-none');
+    }
+  });
+}
+
+document.querySelectorAll('.edit-question-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const questionId = this.dataset.id;
+    const questionCard = document.querySelector(`.question-card[data-id="${questionId}"]`);
+    
+    // Obtener datos de la pregunta
+    const questionText = questionCard.querySelector('.card-title').textContent;
+    const questionType = questionCard.querySelector('.badge').textContent;
+    const isRequired = questionCard.querySelector('.badge.bg-danger') !== null;
+    const helpText = questionCard.querySelector('.text-muted.small')?.textContent || '';
+    
+    // Llenar el formulario
+    document.getElementById('edit_text').value = questionText;
+    document.getElementById('edit_help_text').value = helpText;
+    document.getElementById('edit_is_required').checked = isRequired;
+    
+    // Seleccionar el tipo de pregunta
+    const typeSelect = document.getElementById('edit_question_type');
+    for (let i = 0; i < typeSelect.options.length; i++) {
+      if (typeSelect.options[i].text === questionType) {
+        typeSelect.selectedIndex = i;
+        break;
+      }
+    }
+    
+    // Mostrar campos específicos según el tipo
+    if (questionType === 'Escala Lineal') {
+      editLinearScaleFields.classList.remove('d-none');
+      
+      // Obtener valores de escala
+      const minValue = questionCard.querySelector('.col-6:first-child strong:first-of-type').nextSibling.textContent.trim();
+      const maxValue = questionCard.querySelector('.col-6:last-child strong:first-of-type').nextSibling.textContent.trim();
+      const minLabel = questionCard.querySelector('.col-6:first-child strong:last-of-type').nextSibling.textContent.trim();
+      const maxLabel = questionCard.querySelector('.col-6:last-child strong:last-of-type').nextSibling.textContent.trim();
+      
+      document.getElementById('edit_min_value').value = minValue;
+      document.getElementById('edit_max_value').value = maxValue;
+      document.getElementById('edit_min_label').value = minLabel;
+      document.getElementById('edit_max_label').value = maxLabel;
+      
+      // Actualizar vista previa
+      updateEditScalePreview();
+    } else {
+      editLinearScaleFields.classList.add('d-none');
+    }
+    
+    // Actualizar la URL del formulario
+    editQuestionForm.action = `/forms/question/${questionId}/edit/`;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
+    modal.show();
+  });
+});
+
+if (updateQuestionBtn) {
+  updateQuestionBtn.addEventListener('click', function() {
+    if (editQuestionForm.checkValidity()) {
+      editQuestionForm.submit();
+    } else {
+      editQuestionForm.reportValidity();
+    }
+  });
+}
+
+// Añadir opción
+const saveOptionBtn = document.getElementById('saveOptionBtn');
+const addOptionForm = document.getElementById('addOptionForm');
+
+document.querySelectorAll('.add-option-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const questionId = this.dataset.questionId;
+    document.getElementById('option_question_id').value = questionId;
+    
+    // Actualizar la URL del formulario - CORREGIDO: forms/ en lugar de forms_google/
+    addOptionForm.action = `/forms/question/${questionId}/add-option/`;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('addOptionModal'));
+    modal.show();
+  });
+});
+
+if (saveOptionBtn) {
+  saveOptionBtn.addEventListener('click', function() {
+    if (addOptionForm.checkValidity()) {
+      addOptionForm.submit();
+    } else {
+      addOptionForm.reportValidity();
+    }
+  });
+}
+
+// Editar opción
+const updateOptionBtn = document.getElementById('updateOptionBtn');
+const editOptionForm = document.getElementById('editOptionForm');
+
+document.querySelectorAll('.edit-option-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const optionId = this.dataset.id;
+    const optionItem = this.closest('.option-item');
+    const optionText = optionItem.querySelector('.option-text').textContent;
+    
+    // Llenar el formulario
+    document.getElementById('edit_option_id').value = optionId;
+    document.getElementById('edit_option_text').value = optionText;
+    
+    // Actualizar la URL del formulario - CORREGIDO: forms/ en lugar de forms_google/
+    editOptionForm.action = `/forms/option/${optionId}/edit/`;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editOptionModal'));
+    modal.show();
+  });
+});
+
+if (updateOptionBtn) {
+  updateOptionBtn.addEventListener('click', function() {
+    if (editOptionForm.checkValidity()) {
+      editOptionForm.submit();
+    } else {
+      editOptionForm.reportValidity();
+    }
+  });
+}
+
+// Eliminar pregunta o opción
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const deleteConfirmText = document.getElementById('deleteConfirmText');
+let deleteUrl = '';
+let deleteMethod = 'post';
+
+document.querySelectorAll('.delete-question-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const questionId = this.dataset.id;
+    // CORREGIDO: forms/ en lugar de forms_google/
+    deleteUrl = `/forms/question/${questionId}/delete/`;
+    deleteConfirmText.textContent = '¿Estás seguro de que deseas eliminar esta pregunta?';
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
+  });
+});
+
+document.querySelectorAll('.delete-option-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const optionId = this.dataset.id;
+    // CORREGIDO: forms/ en lugar de forms_google/
+    deleteUrl = `/forms/option/${optionId}/delete/`;
+    deleteConfirmText.textContent = '¿Estás seguro de que deseas eliminar esta opción?';
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
+  });
+});
+
+if (confirmDeleteBtn) {
+  confirmDeleteBtn.addEventListener('click', function() {
+    // Crear un formulario dinámico para enviar la solicitud POST
+    const form = document.createElement('form');
+    form.method = deleteMethod;
+    form.action = deleteUrl;
+    
+    // Añadir CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    form.appendChild(csrfInput);
+    
+    // Añadir el formulario al DOM y enviarlo
+    document.body.appendChild(form);
+    form.submit();
+  });
+}
+
+// Función para actualizar el orden de las preguntas
+function updateQuestionsOrder(questionIds) {
+  // CORREGIDO: forms/ en lugar de forms_google/
+  fetch(`/forms/{{ gform.id }}/update-question-order/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({
+      question_ids: questionIds
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      console.log('Orden de preguntas actualizado');
+    } else {
+      console.error('Error al actualizar el orden de preguntas:', data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+// Función para actualizar el orden de las opciones
+function updateOptionsOrder(questionId, optionIds) {
+  // CORREGIDO: forms/ en lugar de forms_google/
+  fetch(`/forms/question/${questionId}/update-option-order/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    },
+    body: JSON.stringify({
+      option_ids: optionIds
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      console.log('Orden de opciones actualizado');
+    } else {
+      console.error('Error al actualizar el orden de opciones:', data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+// Actualizar vista previa de escala lineal
+const minValueInput = document.getElementById('id_min_value');
+const maxValueInput = document.getElementById('id_max_value');
+const minLabelInput = document.getElementById('id_min_label');
+const maxLabelInput = document.getElementById('id_max_label');
+const previewMinLabel = document.getElementById('preview-min-label');
+const previewMaxLabel = document.getElementById('preview-max-label');
+const scalePreviewOptions = document.querySelector('.scale-preview-options');
+
+function updateScalePreview() {
+  if (minValueInput && maxValueInput && scalePreviewOptions) {
+    const minVal = parseInt(minValueInput.value) || 1;
+    const maxVal = parseInt(maxValueInput.value) || 5;
+    
+    // Actualizar etiquetas
+    if (previewMinLabel && minLabelInput) {
+      previewMinLabel.textContent = minLabelInput.value || 'Muy insatisfecho';
+    }
+    
+    if (previewMaxLabel && maxLabelInput) {
+      previewMaxLabel.textContent = maxLabelInput.value || 'Muy satisfecho';
+    }
+    
+    // Actualizar opciones
+    if (scalePreviewOptions) {
+      scalePreviewOptions.innerHTML = '';
+      for (let i = minVal; i <= maxVal; i++) {
+        const span = document.createElement('span');
+        span.textContent = i;
+        scalePreviewOptions.appendChild(span);
+      }
+    }
+  }
+}
+
+// Función para actualizar la vista previa en el modal de edición
+function updateEditScalePreview() {
+  const editMinValue = document.getElementById('edit_min_value');
+  const editMaxValue = document.getElementById('edit_max_value');
+  const editMinLabel = document.getElementById('edit_min_label');
+  const editMaxLabel = document.getElementById('edit_max_label');
+  const editPreviewMinLabel = document.getElementById('edit-preview-min-label');
+  const editPreviewMaxLabel = document.getElementById('edit-preview-max-label');
+  const editScalePreviewOptions = document.querySelector('#editLinearScaleFields .scale-preview-options');
+  
+  if (editMinValue && editMaxValue && editScalePreviewOptions) {
+    const minVal = parseInt(editMinValue.value) || 1;
+    const maxVal = parseInt(editMaxValue.value) || 5;
+    
+    // Actualizar etiquetas
+    if (editPreviewMinLabel && editMinLabel) {
+      editPreviewMinLabel.textContent = editMinLabel.value || 'Muy insatisfecho';
+    }
+    
+    if (editPreviewMaxLabel && editMaxLabel) {
+      editPreviewMaxLabel.textContent = editMaxLabel.value || 'Muy satisfecho';
+    }
+    
+    // Actualizar opciones
+    if (editScalePreviewOptions) {
+      editScalePreviewOptions.innerHTML = '';
+      for (let i = minVal; i <= maxVal; i++) {
+        const span = document.createElement('span');
+        span.textContent = i;
+        editScalePreviewOptions.appendChild(span);
+      }
+    }
+  }
+}
+
+// Añadir event listeners para actualizar la vista previa
+if (minValueInput) minValueInput.addEventListener('input', updateScalePreview);
+if (maxValueInput) maxValueInput.addEventListener('input', updateScalePreview);
+if (minLabelInput) minLabelInput.addEventListener('input', updateScalePreview);
+if (maxLabelInput) maxLabelInput.addEventListener('input', updateScalePreview);
+
+// Event listeners para la vista previa en el modal de edición
+const editMinValue = document.getElementById('edit_min_value');
+const editMaxValue = document.getElementById('edit_max_value');
+const editMinLabel = document.getElementById('edit_min_label');
+const editMaxLabel = document.getElementById('edit_max_label');
+
+if (editMinValue) editMinValue.addEventListener('input', updateEditScalePreview);
+if (editMaxValue) editMaxValue.addEventListener('input', updateEditScalePreview);
+if (editMinLabel) editMinLabel.addEventListener('input', updateEditScalePreview);
+if (editMaxLabel) editMaxLabel.addEventListener('input', updateEditScalePreview);
+
+// Inicializar vistas previas
+updateScalePreview();
+updateEditScalePreview();
+});
+</script>
+{% endblock %}
