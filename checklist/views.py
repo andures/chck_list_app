@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.contrib import messages
@@ -19,6 +19,18 @@ from datetime import datetime
 from django.utils import timezone
 import pytz
 
+# Añadir estas importaciones al principio del archivo
+from openpyxl import Workbook
+from openpyxl.drawing.image import Image as XLImage
+from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.utils import get_column_letter
+import tempfile
+import requests
+from io import BytesIO
+from PIL import Image as PILImage
+import os
+from urllib.parse import urlparse
+
 def home(request):
     return render(request, 'home.html')
 
@@ -28,10 +40,17 @@ def dashboard(request):
     recent_todo_lists = TodoList.objects.filter(user=request.user).order_by('-created_at')[:5]
     # Usar GForm en lugar de DynamicForm
     forms = GForm.objects.filter(user=request.user).order_by('-updated_at')[:5]
+    
+    # Calcular el número total de tareas completadas
+    completed_tasks_count = 0
+    for todo_list in todo_lists:
+        completed_tasks_count += todo_list.tasks.filter(status='done').count()
+    
     return render(request, 'dashboard.html', {
         'todo_lists': todo_lists, 
         'recent_todo_lists': recent_todo_lists,
-        'forms': forms
+        'forms': forms,
+        'completed_tasks_count': completed_tasks_count  # Añadir esta variable
     })
 
 def register_view(request):
@@ -710,9 +729,15 @@ def gform_respond(request, form_id):
     
     # Verificar que el formulario esté publicado
     if not gform.is_published:
-        return HttpResponseForbidden("Este formulario no está disponible para respuestas")
+        messages.warning(request, "Este formulario no está disponible para respuestas")
+        return redirect('gform_list')
     
     questions = GQuestion.objects.filter(form=gform).order_by('position')
+    
+    # Verificar que el formulario tenga preguntas
+    if not questions.exists():
+        messages.warning(request, "Este formulario no tiene preguntas. No se puede responder.")
+        return redirect('gform_list')
     
     # Crear contexto para las preguntas de tipo escala lineal
     for question in questions:
@@ -1011,3 +1036,187 @@ def gform_response_data(request, response_id):
         },
         'response': response_data
     })
+
+@login_required
+def export_response_to_excel(request, response_id):
+    """Vista para exportar una respuesta a Excel con imágenes incrustadas"""
+    response_obj = get_object_or_404(GResponse, id=response_id)
+    gform = response_obj.form
+    
+    # Verificar que el usuario sea el propietario del formulario
+    if gform.user != request.user:
+        return HttpResponse("No tienes permiso para ver esta respuesta", status=403)
+    
+    # Obtener todas las preguntas y respuestas
+    questions = GQuestion.objects.filter(form=gform).order_by('position')
+    answers = GAnswer.objects.filter(response=response_obj).select_related('question')
+    
+    # Crear un diccionario para facilitar el acceso a las respuestas
+    answer_dict = {}
+    for answer in answers:
+        answer_dict[answer.question.id] = answer
+    
+    # Crear un nuevo libro de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Respuesta #{response_obj.id}"
+    
+    # Añadir información del formulario
+    ws['A1'] = "Formulario:"
+    ws['B1'] = gform.title
+    ws['A2'] = "Descripción:"
+    ws['B2'] = gform.description or ""
+    ws['A3'] = "Respondente:"
+    ws['B3'] = response_obj.respondent.username if response_obj.respondent else (response_obj.respondent_email or "Anónimo")
+    ws['A4'] = "Fecha de respuesta:"
+    ws['B4'] = response_obj.created_at.strftime('%d/%m/%Y %H:%M')
+    
+    # Dar formato a los encabezados
+    header_font = Font(bold=True)
+    header_fill = PatternFill(start_color="E0E0E0", end_color="E0E0E0", fill_type="solid")
+    
+    for cell in ['A1', 'A2', 'A3', 'A4']:
+        ws[cell].font = header_font
+    
+    # Añadir encabezados de columnas
+    ws['A6'] = "Pregunta"
+    ws['B6'] = "Respuesta"
+    ws['C6'] = "Archivo adjunto"
+    
+    for cell in ['A6', 'B6', 'C6']:
+        ws[cell].font = header_font
+        ws[cell].fill = header_fill
+    
+    # Configurar anchos de columna
+    ws.column_dimensions['A'].width = 30
+    ws.column_dimensions['B'].width = 40
+    ws.column_dimensions['C'].width = 20
+    ws.column_dimensions['D'].width = 30  # Para imágenes
+    
+    # Lista para almacenar archivos temporales que necesitamos eliminar al final
+    temp_files = []
+    
+    try:
+        # Añadir respuestas
+        row = 7
+        for question in questions:
+            # Añadir pregunta
+            ws[f'A{row}'] = question.text
+            ws[f'A{row}'].alignment = Alignment(wrap_text=True, vertical='top')
+            
+            # Añadir respuesta
+            if question.id in answer_dict:
+                answer = answer_dict[question.id]
+                
+                # Manejar diferentes tipos de respuestas
+                if question.question_type in ['short_text', 'paragraph', 'date', 'time', 'linear_scale']:
+                    ws[f'B{row}'] = answer.text_answer or "Sin respuesta"
+                
+                elif question.question_type in ['multiple_choice', 'dropdown', 'checkbox']:
+                    selected_options = GSelectedOption.objects.filter(answer=answer).select_related('option')
+                    if selected_options:
+                        ws[f'B{row}'] = ", ".join([opt.option.text for opt in selected_options])
+                    else:
+                        ws[f'B{row}'] = "Sin respuesta"
+                
+                ws[f'B{row}'].alignment = Alignment(wrap_text=True, vertical='top')
+                
+                # Manejar archivos adjuntos
+                if answer.image:
+                    try:
+                        # Obtener la ruta del archivo
+                        image_path = answer.image.path
+                        
+                        # Añadir descripción
+                        ws[f'C{row}'] = f"Imagen: {os.path.basename(answer.image.name)}"
+                        
+                        # Redimensionar imagen si es necesario
+                        img = PILImage.open(image_path)
+                        max_width = 300  # Ancho máximo en píxeles
+                        max_height = 200  # Alto máximo en píxeles
+                        
+                        # Calcular nuevas dimensiones manteniendo la proporción
+                        width, height = img.size
+                        if width > max_width or height > max_height:
+                            ratio = min(max_width/width, max_height/height)
+                            new_width = int(width * ratio)
+                            new_height = int(height * ratio)
+                            img = img.resize((new_width, new_height), PILImage.LANCZOS)
+                        
+                        # Guardar imagen redimensionada en un archivo temporal
+                        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                        temp_path = temp_file.name
+                        temp_files.append(temp_path)  # Añadir a la lista para eliminar después
+                        img.save(temp_path, format='PNG')
+                        
+                        # Añadir imagen al Excel
+                        excel_img = XLImage(temp_path)
+                        ws.add_image(excel_img, f'D{row}')
+                        
+                    except Exception as e:
+                        ws[f'C{row}'] = f"Error al procesar imagen: {str(e)}"
+                
+                elif answer.video:
+                    ws[f'C{row}'] = f"Video: {os.path.basename(answer.video.name)}"
+                
+                elif answer.file_url:
+                    ws[f'C{row}'] = f"URL: {answer.file_url}"
+                    
+                    # Intentar descargar y añadir la imagen si la URL parece ser una imagen
+                    if any(answer.file_url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif']):
+                        try:
+                            # Descargar imagen
+                            img_response = requests.get(answer.file_url)
+                            if img_response.status_code == 200:
+                                # Procesar imagen
+                                img = PILImage.open(BytesIO(img_response.content))
+                                
+                                # Redimensionar si es necesario
+                                max_width = 300
+                                max_height = 200
+                                width, height = img.size
+                                if width > max_width or height > max_height:
+                                    ratio = min(max_width/width, max_height/height)
+                                    new_width = int(width * ratio)
+                                    new_height = int(height * ratio)
+                                    img = img.resize((new_width, new_height), PILImage.LANCZOS)
+                                
+                                # Guardar en archivo temporal
+                                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                                temp_path = temp_file.name
+                                temp_files.append(temp_path)  # Añadir a la lista para eliminar después
+                                img.save(temp_path, format='PNG')
+                                
+                                # Añadir al Excel
+                                excel_img = XLImage(temp_path)
+                                ws.add_image(excel_img, f'D{row}')
+                                
+                        except Exception as e:
+                            ws[f'C{row}'] += f" (Error al procesar: {str(e)})"
+            else:
+                ws[f'B{row}'] = "Sin respuesta"
+            
+            # Ajustar altura de la fila para las imágenes
+            ws.row_dimensions[row].height = 150
+            
+            row += 1
+        
+        # Crear respuesta HTTP con el archivo Excel
+        http_response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        http_response['Content-Disposition'] = f'attachment; filename=respuesta_{response_obj.id}_{gform.title.replace(" ", "_")}.xlsx'
+        
+        # Guardar el libro de Excel en la respuesta HTTP
+        wb.save(http_response)
+        
+        return http_response
+    
+    finally:
+        # Limpiar archivos temporales
+        for temp_path in temp_files:
+            try:
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+            except Exception:
+                pass  # Ignorar errores al eliminar archivos temporales

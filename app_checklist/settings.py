@@ -30,7 +30,7 @@ CSRF_TRUSTED_ORIGINS = ["https://chcklistapp-production.up.railway.app"]
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if ENVIRONMENT == 'production':
+if ENVIRONMENT == 'development':
     DEBUG = True
 else:
     DEBUG = False
@@ -100,7 +100,7 @@ else:
     }
 
 
-POSTGRES_LOCALLY = True
+POSTGRES_LOCALLY = True # Set to True if you want to use postgres in production set to false if you want to use sqlite3
 if ENVIRONMENT == 'production' or POSTGRES_LOCALLY == True:
     DATABASES['default'] = dj_database_url.parse(env('DATABASE_URL'))
 

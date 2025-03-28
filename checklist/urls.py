@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -45,6 +46,10 @@ urlpatterns = [
     path('forms/option/<int:option_id>/delete/', views.gform_delete_option, name='gform_delete_option'),
     path('forms/response/<int:response_id>/', views.gform_response_detail, name='gform_response_detail'),
     path('forms/response/<int:response_id>/data/', views.gform_response_data, name='gform_response_data'),
+    path('forms/response/<int:response_id>/excel/', views.export_response_to_excel, name='export_response_to_excel'),
+
+    # Redirecciones para URLs antiguas o incorrectas
+    path('todo_list/<int:list_id>/', lambda request, list_id: redirect('view_todo_list', list_id=list_id)),
 ]
 
 

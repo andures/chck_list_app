@@ -5,6 +5,152 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+<style>
+  /* Anular el efecto hover de las tarjetas list-card */
+  .list-card:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  /* Estilos para el botón de nueva lista con animación de expansión */
+  .create-list-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px; /* Usamos 50px en lugar de 50% para permitir la expansión */
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Transición con rebote */
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .create-list-btn:hover {
+    width: 160px; /* Ancho expandido para mostrar el texto */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+  }
+
+  .create-list-btn i {
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .create-list-btn:hover i {
+    margin-right: 8px;
+  }
+
+  .create-list-btn .btn-text {
+    position: absolute;
+    right: 50px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .create-list-btn:hover .btn-text {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    right: 0;
+  }
+
+  /* Estilos para el botón de crear lista en el estado vacío */
+  .empty-state-create-btn {
+    margin-top: 1.5rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 15px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7b78e5, #5e60ce);
+    border: none;
+    box-shadow: 0 10px 20px rgba(94, 96, 206, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .empty-state-create-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    z-index: 1;
+  }
+
+  .empty-state-create-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(94, 96, 206, 0.5);
+  }
+
+  .empty-state-create-btn i {
+    font-size: 2.5rem;
+    color: white;
+    z-index: 2;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Anular el efecto hover del empty-state */
+  .empty-state:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--neutral-50);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--neutral-300);
+    transition: all var(--transition-normal);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Animación de pulso para el botón en estado vacío */
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(94, 96, 206, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 15px rgba(94, 96, 206, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(94, 96, 206, 0);
+    }
+  }
+  
+  .empty-state .empty-state-create-btn {
+    animation: pulse 2s infinite;
+  }
+  
+  .empty-state .empty-state-create-btn:hover {
+    animation: none;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,11 +159,16 @@
     <div class="row mb-4">
       <div class="col-lg-8">
         <h1 class="fw-bold">Mis Listas de Tareas</h1>
+        <p class="text-muted">Organiza tus tareas en listas y gestiona tu productividad</p>
       </div>
       <div class="col-lg-4 text-lg-end">
         <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
-          <a href="{% url 'create_todo_list' %}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>Nueva Lista
+          <a href="{% url 'create_todo_list' %}" class="btn create-list-btn">
+            <i class="bi bi-plus"></i>
+            <span class="btn-text">Crear lista</span>
+          </a>
+          <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
           </a>
         </div>
       </div>
@@ -26,14 +177,39 @@
     <div class="row">
       {% if lists %}
         {% for list in lists %}
-        <div class="col-md-4 mb-4">
+        <div class="col-md-6 col-lg-4 mb-4 animate-fade-in">
           <div class="list-card">
             <div class="list-card-header">
               <h3>{{ list.name }}</h3>
               <div class="list-stats">
-                <span class="badge todo-badge">{{ list.todo_count }} tareas por hacer</span>
+                <span class="badge todo-badge">{{ list.todo_count }} por hacer</span>
                 <span class="badge progress-badge">{{ list.progress_count }} en progreso</span>
                 <span class="badge done-badge">{{ list.done_count }} completadas</span>
+              </div>
+            </div>
+            <div class="list-card-body p-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted small">
+                  <i class="bi bi-calendar3 me-1"></i> Creada: {{ list.created_at|date:"d/m/Y" }}
+                </span>
+                <span class="badge bg-primary">{{ list.tasks.count }} tareas</span>
+              </div>
+              
+              <!-- Barra de progreso -->
+              <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar" 
+                     style="width: 0%;" 
+                     aria-valuenow="0" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100"
+                     data-done-count="{{ list.done_count }}"
+                     data-total-count="{{ list.tasks.count }}"></div>
+              </div>
+              <div class="d-flex justify-content-between small text-muted mb-3">
+                <span>Progreso</span>
+                <span class="progress-percentage" 
+                      data-done-count="{{ list.done_count }}"
+                      data-total-count="{{ list.tasks.count }}">0%</span>
               </div>
             </div>
             <div class="list-card-actions">
@@ -46,17 +222,18 @@
             </div>
           </div>
         </div>
-    {% endfor %}
-    
+        {% endfor %}
       {% else %}
         <div class="col-12">
           <div class="empty-state">
             <i class="bi bi-clipboard-check"></i>
             <h3>No tienes listas de tareas</h3>
-            <p>Crea tu primera lista para comenzar a organizar tus tareas.</p>
-            <a href="{% url 'create_todo_list' %}" class="btn btn-primary">
-              <i class="bi bi-plus-lg me-2"></i>Crear Lista
-            </a>
+            <p>Crea tu primera lista para comenzar a organizar tus tareas y aumentar tu productividad.</p>
+            <div class="d-flex justify-content-center mt-3">
+              <a href="{% url 'create_todo_list' %}" class="btn btn-primary btn-lg empty-state-create-btn">
+                <i class="bi bi-plus"></i>
+              </a>
+            </div>
           </div>
         </div>
       {% endif %}
@@ -71,6 +248,35 @@
 {% block scripts %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Calcular y establecer el progreso para todas las barras de progreso
+    const progressBars = document.querySelectorAll('.progress-bar');
+    const progressPercentages = document.querySelectorAll('.progress-percentage');
+    
+    // Función para calcular el porcentaje
+    function calculatePercentage(doneCount, totalCount) {
+      if (totalCount <= 0) return 0;
+      return Math.round((doneCount / totalCount) * 100);
+    }
+    
+    // Actualizar barras de progreso
+    progressBars.forEach(bar => {
+      const doneCount = parseInt(bar.getAttribute('data-done-count') || '0');
+      const totalCount = parseInt(bar.getAttribute('data-total-count') || '0');
+      const percentage = calculatePercentage(doneCount, totalCount);
+      
+      bar.style.width = percentage + '%';
+      bar.setAttribute('aria-valuenow', percentage.toString());
+    });
+    
+    // Actualizar textos de porcentaje
+    progressPercentages.forEach(element => {
+      const doneCount = parseInt(element.getAttribute('data-done-count') || '0');
+      const totalCount = parseInt(element.getAttribute('data-total-count') || '0');
+      const percentage = calculatePercentage(doneCount, totalCount);
+      
+      element.textContent = percentage + '%';
+    });
+    
     // Código para mostrar toasts si es necesario
     function showToast(message, type = 'info') {
       const toast = document.createElement('div');
@@ -95,6 +301,15 @@
           toastContainer.removeChild(toast);
         }, 300);
       }, 3000);
+    }
+    
+    // Mostrar toast de bienvenida
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('created') === 'true') {
+      showToast('Lista creada correctamente', 'success');
+    }
+    if (urlParams.get('deleted') === 'true') {
+      showToast('Lista eliminada correctamente', 'success');
     }
   });
 </script>

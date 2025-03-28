@@ -5,6 +5,33 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+<style>
+  /* Anular el efecto hover del form-card */
+  .form-card:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+  
+  /* Estilo para el botón de crear lista con solo icono */
+  .create-list-btn {
+    font-size: 1.2rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .create-list-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+  }
+  
+  .create-list-btn i {
+    font-size: 1.4rem;
+    margin-right: 0;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -42,7 +69,7 @@
               
               <div class="d-grid">
                 <button type="submit" class="btn btn-primary">
-                  <i class="bi bi-check-lg me-2"></i>Crear Lista
+                  <i class="bi bi-plus-lg" style="display: inline-flex; align-items: center; justify-content: center; line-height: 1;"></i>
                 </button>
               </div>
             </form>

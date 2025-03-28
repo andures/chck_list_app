@@ -1,96 +1,910 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Mis Formularios{% endblock %}
+{% block title %}Mis Formularios - DragTask{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{% static 'css/forms_google.css' %}">
+<link rel="stylesheet" href="{% static 'css/forms_google.css' %}?v={% now 'U' %}">
+<style>
+  /* Estilos mejorados para la página de formularios */
+  /* Modificar el header para hacerlo más pequeño */
+  .forms-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    padding: 1.5rem 0; /* Reducido de 2.5rem a 1.5rem */
+    margin-bottom: 1rem; /* Reducido de 2.5rem a 1rem */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .forms-header {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .forms-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,0.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    z-index: 0;
+  }
+  
+  .forms-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: fadeInDown 0.6s ease-out;
+    background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    display: inline-block;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.5rem;
+  }
+  
+  .forms-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    line-height: 1.7;
+    animation: fadeInUp 0.6s ease-out;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .forms-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .forms-header-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .forms-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(4px);
+    animation: fadeInLeft 0.6s ease-out;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .forms-badge i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  /* Estilos para las tarjetas de formulario */
+  .form-card {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    border: 1px solid var(--neutral-200);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  [data-bs-theme="dark"] .form-card {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-700);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .form-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  
+  .form-card-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    position: relative;
+  }
+  
+  .form-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 80px;
+  }
+  
+  .form-status {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .form-status.published {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  
+  .form-status.draft {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  
+  .form-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+  }
+  
+  .form-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+  }
+  
+  .form-meta-item i {
+    font-size: 0.9rem;
+  }
+  
+  .form-card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-description {
+    color: var(--neutral-700);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    min-height: 4.5rem; /* Altura para aproximadamente 3 líneas */
+  }
+  
+  [data-bs-theme="dark"] .form-description {
+    color: var(--neutral-300);
+  }
+  
+  .response-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--primary);
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+  
+  [data-bs-theme="dark"] .response-count {
+    background-color: rgba(var(--bs-primary-rgb), 0.2);
+  }
+  
+  /* Ajuste para los botones de acción a la derecha */
+  .form-card-actions {
+    display: flex;
+    justify-content: center; /* Cambiado de flex-end a center */
+    margin-top: auto;
+    border-top: 1px solid var(--neutral-200);
+    padding-top: 1rem;
+    gap: 0.5rem;
+  }
+  
+  [data-bs-theme="dark"] .form-card-actions {
+    border-top-color: var(--neutral-700);
+  }
+  
+  .action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--primary);
+    border: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .action-btn:hover {
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb), 0.3);
+  }
+  
+  /* Estilos específicos para cada botón */
+  .action-btn.edit-btn {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+  }
+  
+  .action-btn.edit-btn:hover {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .action-btn.view-btn {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+  
+  .action-btn.view-btn:hover {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .action-btn.respond-btn {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+  
+  .action-btn.respond-btn:hover {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .action-btn.stats-btn {
+    background-color: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+  }
+  
+  .action-btn.stats-btn:hover {
+    background-color: #0ea5e9;
+    color: white;
+  }
+  
+  .action-btn.delete-btn {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+  
+  .action-btn.delete-btn:hover {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  /* Tooltip personalizado */
+  .tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltip-wrapper .tooltip-text {
+    visibility: hidden;
+    width: auto;
+    background-color: rgba(15, 23, 42, 0.9);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tooltip-wrapper .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.9) transparent transparent transparent;
+  }
+  
+  .tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  /* Estilos para el estado vacío */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid var(--neutral-200);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  [data-bs-theme="dark"] .empty-state {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-700);
+  }
+  
+  .empty-icon {
+    font-size: 5rem;
+    color: var(--neutral-400);
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+  
+  .empty-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--neutral-700);
+  }
+  
+  [data-bs-theme="dark"] .empty-title {
+    color: var(--neutral-300);
+  }
+  
+  .empty-description {
+    color: var(--neutral-500);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+  }
+  
+  [data-bs-theme="dark"] .empty-description {
+    color: var(--neutral-400);
+  }
+  
+  /* Botón de crear nuevo formulario */
+  .create-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(var(--bs-primary-rgb), 0.3);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Estilos para el botón de nuevo formulario con animación de expansión */
+  .create-form-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .create-form-btn:hover {
+    width: 180px;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+  }
+
+  .create-form-btn i {
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .create-form-btn:hover i {
+    margin-right: 8px;
+  }
+
+  .create-form-btn .btn-text {
+    position: absolute;
+    right: 50px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .create-form-btn:hover .btn-text {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    right: 0;
+  }
+  
+  .create-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(var(--bs-primary-rgb), 0.4);
+  }
+  
+  .create-btn i {
+    font-size: 1.25rem;
+  }
+  
+  /* Estilos para el botón de crear formulario en el estado vacío */
+  .empty-state-create-btn {
+    margin-top: 1.5rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 15px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #7b78e5, #5e60ce);
+    border: none;
+    box-shadow: 0 10px 20px rgba(94, 96, 206, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .empty-state-create-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    z-index: 1;
+  }
+
+  .empty-state-create-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(94, 96, 206, 0.5);
+  }
+
+  .empty-state-create-btn i {
+    font-size: 2.5rem;
+    color: white;
+    z-index: 2;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Animación de pulso para el botón en estado vacío */
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(94, 96, 206, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 15px rgba(94, 96, 206, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(94, 96, 206, 0);
+    }
+  }
+
+  .empty-state .empty-state-create-btn {
+    animation: pulse 2s infinite;
+  }
+
+  .empty-state .empty-state-create-btn:hover {
+    animation: none;
+  }
+  
+  /* Animaciones */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Estilos para las alertas/notificaciones */
+  .alert {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .alert-success {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #059669;
+    border-left: 4px solid #10b981;
+  }
+  
+  .alert-danger {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #dc2626;
+    border-left: 4px solid #ef4444;
+  }
+  
+  .alert-info {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #2563eb;
+    border-left: 4px solid #3b82f6;
+  }
+  
+  .alert-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #d97706;
+    border-left: 4px solid #f59e0b;
+  }
+  
+  /* Toast para notificaciones */
+  .toast-container {
+    z-index: 1050;
+  }
+  
+  .toast {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+    overflow: hidden;
+  }
+  
+  .toast-success {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .toast-warning {
+    background-color: #f59e0b;
+    color: white;
+  }
+  
+  .toast-error {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .toast-info {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  /* Responsive */
+  @media (max-width: 767px) {
+    .form-card-actions {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .forms-title {
+      font-size: 2rem;
+    }
+    
+    .forms-subtitle {
+      font-size: 1rem;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold">Mis Formularios</h1>
-        <a href="{% url 'gform_create' %}" class="btn btn-crear-formulario">
-            <i class="bi bi-plus-lg"></i> Crear Formulario
-        </a>
+<!-- Header con gradiente -->
+<div class="forms-header">
+  <div class="container">
+    <div class="forms-container">
+      <div class="forms-header-content">
+        <div class="forms-badge">
+          <i class="bi bi-file-earmark-text"></i>Formularios
+        </div>
+        <h1 class="forms-title">Mis Formularios</h1>
+        <p class="forms-subtitle">
+          Crea y gestiona formularios para recopilar información de manera eficiente
+        </p>
+      </div>
     </div>
+  </div>
+</div>
 
+<!-- Botones de acción fuera del header -->
+<div class="container mt-3 mb-4">
+  <div class="d-flex justify-content-end gap-3">
+    <a href="{% url 'gform_create' %}" class="btn create-form-btn">
+      <i class="bi bi-plus"></i>
+      <span class="btn-text">Crear formulario</span>
+    </a>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+      <i class="bi bi-speedometer2 me-2"></i>Dashboard
+    </a>
+  </div>
+</div>
+
+<div class="container mb-5">
+  <div class="forms-container">
     {% if messages %}
     <div class="messages mb-4">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} animate-fade-in">
-            {{ message }}
-        </div>
-        {% endfor %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} animate-fade-in">
+        {{ message }}
+      </div>
+      {% endfor %}
     </div>
     {% endif %}
 
     {% if forms %}
-    <div class="row g-4">
+      <div class="row">
         {% for form in forms %}
-        <div class="col-md-6 col-lg-4">
-            <div class="form-card shadow">
-                <div class="form-card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="card-title">{{ form.title }}</h5>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'gform_view' form_id=form.id %}" class="btn btn-sm btn-outline-success action-icon-btn" title="Ver formulario">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a href="{% url 'gform_delete' form_id=form.id %}" class="btn btn-sm btn-outline-danger action-icon-btn" title="Borrar formulario">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <p class="card-text text-muted small mb-0">
-                            <i class="bi bi-calendar3 me-1"></i> <span class="datetime" data-utc="{{ form.created_at|date:'c' }}">{{ form.created_at|date:"d/m/Y H:i" }}</span>
-                        </p>
-                        <span class="form-status {% if form.is_published %}published{% else %}draft{% endif %}">
-                            {% if form.is_published %}Publicado{% else %}Borrador{% endif %}
-                        </span>
-                    </div>
-                    <p class="card-text">
-                        {% if form.description %}
-                        {{ form.description|truncatechars:100 }}
-                        {% else %}
-                        <span class="text-muted fst-italic">Sin descripción</span>
-                        {% endif %}
-                    </p>
+        <div class="col-md-6 col-lg-4 mb-4 animate-fade-in" style="--animation-order: {{ forloop.counter }}">
+          <div class="form-card">
+            <div class="form-card-header">
+              <h3 class="form-card-title">{{ form.title }}</h3>
+              <span class="form-status {% if form.is_published %}published{% else %}draft{% endif %}">
+                {% if form.is_published %}Publicado{% else %}Borrador{% endif %}
+              </span>
+              
+              <div class="form-meta">
+                <div class="form-meta-item">
+                  <i class="bi bi-calendar3"></i>
+                  <span>{{ form.created_at|date:"d/m/Y" }}</span>
                 </div>
-                <div class="form-card-footer">
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'gform_edit' form_id=form.id %}" class="btn btn-sm btn-outline-primary flex-grow-1">
-                            <i class="bi bi-pencil me-1"></i> Editar
-                        </a>
-                        <a href="{% url 'gform_respond' form_id=form.id %}" class="btn btn-sm btn-outline-primary flex-grow-1">
-                            <i class="bi bi-pencil-square me-1"></i> Responder
-                        </a>
-                        <a href="{% url 'gform_responses' form_id=form.id %}" class="btn btn-sm btn-outline-info flex-grow-1">
-                            <i class="bi bi-bar-chart me-1"></i> Respuestas
-                        </a>
-                    </div>
+                <div class="form-meta-item">
+                  <i class="bi bi-question-circle"></i>
+                  <span>{{ form.questions.count }} preguntas</span>
                 </div>
+              </div>
             </div>
+            
+            <div class="form-card-body">
+              <div class="form-description">
+                {% if form.description %}
+                  {{ form.description|truncatechars:150 }}
+                {% else %}
+                  <span class="text-muted fst-italic">Sin descripción</span>
+                {% endif %}
+              </div>
+              
+              <div class="d-flex align-items-center mb-3">
+                <span class="response-count">
+                  <i class="bi bi-chat-dots me-1"></i>{{ form.responses.count }} respuestas
+                </span>
+                <span class="text-muted small ms-2">Última actualización: {{ form.updated_at|date:"d/m/Y" }}</span>
+              </div>
+              
+              <div class="form-card-actions">
+                <div class="tooltip-wrapper">
+                  <a href="{% url 'gform_edit' form_id=form.id %}" class="action-btn edit-btn">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <span class="tooltip-text">Editar</span>
+                </div>
+                
+                <div class="tooltip-wrapper">
+                  <a href="{% url 'gform_view' form_id=form.id %}" class="action-btn view-btn">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <span class="tooltip-text">Ver</span>
+                </div>
+                
+                <div class="tooltip-wrapper">
+                  <a href="{% url 'gform_respond' form_id=form.id %}" class="action-btn respond-btn" data-questions-count="{{ form.questions.count }}" data-is-published="{{ form.is_published|lower }}">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <span class="tooltip-text">Responder</span>
+                </div>
+                
+                <div class="tooltip-wrapper">
+                  <a href="{% url 'gform_responses' form_id=form.id %}" class="action-btn stats-btn" data-responses-count="{{ form.responses.count }}">
+                    <i class="bi bi-bar-chart"></i>
+                  </a>
+                  <span class="tooltip-text">Respuestas</span>
+                </div>
+                
+                <div class="tooltip-wrapper">
+                  <a href="{% url 'gform_delete' form_id=form.id %}" class="action-btn delete-btn">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                  <span class="tooltip-text">Eliminar</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         {% endfor %}
-    </div>
+      </div>
     {% else %}
-    <div class="card shadow p-5 text-center animate-fade-in">
-        <div class="py-5">
-            <i class="bi bi-file-earmark-text display-1 text-muted mb-4"></i>
-            <h3>No tienes formularios creados</h3>
-            <p class="text-muted mb-4">¡Crea tu primer formulario para comenzar a recopilar respuestas!</p>
-            <a href="{% url 'gform_create' %}" class="btn btn-crear-formulario btn-lg">
-                <i class="bi bi-plus-lg"></i> Crear Formulario
-            </a>
+      <!-- Estado vacío -->
+      <div class="empty-state">
+        <i class="bi bi-file-earmark-text empty-icon"></i>
+        <h3 class="empty-title">Aún no tienes formularios</h3>
+        <p class="empty-description">Crea tu primer formulario para comenzar a recopilar respuestas.</p>
+        <div class="d-flex justify-content-center">
+          <a href="{% url 'gform_create' %}" class="btn empty-state-create-btn">
+            <i class="bi bi-plus"></i>
+          </a>
         </div>
-    </div>
+      </div>
     {% endif %}
+  </div>
 </div>
+
+<!-- Toast container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'js/datetime-formatter.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animación para las tarjetas
+    const formCards = document.querySelectorAll('.form-card');
+    formCards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.animation = `fadeIn 0.3s ease forwards ${index * 0.1}s`;
+    });
+
+    // Función para mostrar toasts
+    
+    // Función para mostrar toasts
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type} show`;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toast.setAttribute('aria-atomic', 'true');
+      
+      toast.innerHTML = `
+        <div class="toast-body">
+          <i class="bi bi-info-circle me-2"></i>
+          ${message}
+        </div>
+      `;
+      
+      const toastContainer = document.getElementById('toastContainer');
+      toastContainer.appendChild(toast);
+      
+      // Eliminar después de 3 segundos
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toastContainer.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+    
+    // Verificar respuestas para el botón de estadísticas
+    document.querySelectorAll('.stats-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Obtener el número de respuestas del atributo data
+        const responseCount = parseInt(this.getAttribute('data-responses-count')) || 0;
+        
+        // Si no hay respuestas, prevenir la navegación y mostrar un toast
+        if (responseCount === 0) {
+          e.preventDefault();
+          showToast('No hay respuestas disponibles para este formulario', 'warning');
+        }
+      });
+    });
+    
+    // Verificar preguntas para el botón de responder
+    document.querySelectorAll('.respond-btn').forEach(button => {
+      button.addEventListener('click', function(e) {
+        // Obtener el número de preguntas del atributo data
+        const questionsCount = parseInt(this.getAttribute('data-questions-count')) || 0;
+        const isPublished = this.getAttribute('data-is-published') === 'true';
+        
+        // Si no hay preguntas o no está publicado, prevenir la navegación y mostrar un toast
+        if (questionsCount === 0) {
+          e.preventDefault();
+          showToast('Este formulario no tiene preguntas. Añade preguntas antes de responder', 'warning');
+        } else if (!isPublished) {
+          e.preventDefault();
+          showToast('Este formulario no está publicado. Publica el formulario antes de responder', 'warning');
+        }
+      });
+    });
+    
+    // Auto-dismiss para las alertas
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      setTimeout(() => {
+        alert.style.opacity = '0';
+        alert.style.height = '0';
+        alert.style.margin = '0';
+        alert.style.padding = '0';
+        alert.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+          }
+        }, 500);
+      }, 5000);
+    });
+  });
+</script>
 {% endblock %}

@@ -31,9 +31,9 @@
     <div class="row">
       <div class="col-12">
         <div class="tool-selector">
-          <div class="row g-4">
+          <div class="row g-4 justify-content-center">
             <!-- Todo List Card -->
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-5">
               <div class="tool-card">
                 <div class="tool-icon">
                   <i class="bi bi-kanban"></i>
@@ -50,7 +50,7 @@
             </div>
 
             <!-- Formulario Dinámico Card -->
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-5">
               <div class="tool-card">
                 <div class="tool-icon">
                   <i class="bi bi-file-earmark-text"></i>
@@ -63,23 +63,6 @@
                   <span class="feature-badge"><i class="bi bi-arrow-down-up"></i> Reordenar</span>
                 </div>
                 <a href="{% url 'gform_list' %}" class="btn btn-primary w-100 mt-3">Crear Formulario</a>
-              </div>
-            </div>
-
-            <!-- Checklist Card -->
-            <div class="col-md-6 col-lg-4">
-              <div class="tool-card">
-                <div class="tool-icon">
-                  <i class="bi bi-check2-square"></i>
-                </div>
-                <h3>Checklist</h3>
-                <p>Crea listas simples de verificación para marcar tareas como completadas.</p>
-                <div class="tool-features">
-                  <span class="feature-badge"><i class="bi bi-check-all"></i> Verificación</span>
-                  <span class="feature-badge"><i class="bi bi-arrow-down-up"></i> Reordenar</span>
-                  <span class="feature-badge"><i class="bi bi-list-check"></i> Simple</span>
-                </div>
-                <a href="#" class="btn btn-primary w-100 mt-3">Crear Checklist</a>
               </div>
             </div>
           </div>
@@ -106,7 +89,7 @@
             {% if recent_todo_lists %}
               <div class="scrollable-cards-container">
                 {% for todo_list in recent_todo_lists %}
-                <div class="modern-card">
+                <div class="modern-card" data-list-id="{{ todo_list.id }}">
                   <div class="modern-card-left">
                     <div class="modern-card-icon">
                       <i class="bi bi-kanban"></i>
@@ -125,17 +108,25 @@
                       <div class="modern-card-stats">
                         <div class="stat-pill">
                           <i class="stat-icon bi bi-list-task"></i>
-                          <span class="stat-value">{{ todo_list.tasks.count }}</span>
+                          <span class="stat-value task-total" data-list-id="{{ todo_list.id }}">{{ todo_list.tasks.count }}</span>
                           <span class="stat-label">Tareas</span>
                         </div>
                         <div class="stat-pill">
                           <i class="stat-icon bi bi-hourglass-split"></i>
-                          <span class="stat-value">{{ todo_list.tasks.filter.status.todo.count }}</span>
+                          <span class="stat-value task-todo" data-list-id="{{ todo_list.id }}">
+                            {% with todo_tasks=todo_list.tasks.filter.status.todo.count %}
+                              {{ todo_tasks }}
+                            {% endwith %}
+                          </span>
                           <span class="stat-label">Pendientes</span>
                         </div>
                         <div class="stat-pill">
                           <i class="stat-icon bi bi-check2-all"></i>
-                          <span class="stat-value">{{ todo_list.tasks.filter.status.done.count }}</span>
+                          <span class="stat-value task-done" data-list-id="{{ todo_list.id }}">
+                            {% with done_tasks=todo_list.tasks.filter.status.done.count %}
+                              {{ done_tasks }}
+                            {% endwith %}
+                          </span>
                           <span class="stat-label">Completadas</span>
                         </div>
                       </div>
@@ -263,14 +254,14 @@
               <i class="bi bi-graph-up"></i>
             </div>
           </div>
-          <div class="row g-4">
+          <div class="row g-4 justify-content-center">
             <div class="col-md-6 col-lg-3">
               <div class="modern-stat">
                 <div class="stat-card-icon bg-primary">
                   <i class="bi bi-list-check"></i>
                 </div>
                 <div class="stat-card-content">
-                  <h3 class="stat-card-title">{{ todo_lists.count }}</h3>
+                  <h3 class="stat-card-title" id="total-todo-lists">{{ todo_lists.count }}</h3>
                   <p class="stat-card-text">Todo Lists</p>
                   <div class="stat-progress">
                     <div class="progress">
@@ -286,16 +277,7 @@
                   <i class="bi bi-check2-all"></i>
                 </div>
                 <div class="stat-card-content">
-                  <h3 class="stat-card-title">
-                    {% with completed_count=0 %}
-                      {% for list in todo_lists %}
-                        {% with done_tasks=list.tasks.filter.status.done.count %}
-                          {% with completed_count=completed_count|add:done_tasks %}{% endwith %}
-                        {% endwith %}
-                      {% endfor %}
-                      {{ completed_count }}
-                    {% endwith %}
-                  </h3>
+                  <h3 class="stat-card-title" id="total-completed-tasks">{{ completed_tasks_count }}</h3>
                   <p class="stat-card-text">Tareas Completadas</p>
                   <div class="stat-progress">
                     <div class="progress">
@@ -311,7 +293,7 @@
                   <i class="bi bi-file-earmark-text"></i>
                 </div>
                 <div class="stat-card-content">
-                  <h3 class="stat-card-title">{{ forms|length }}</h3>
+                  <h3 class="stat-card-title" id="total-forms">{{ forms|length }}</h3>
                   <p class="stat-card-text">Formularios</p>
                   <div class="stat-progress">
                     <div class="progress">
@@ -327,14 +309,15 @@
                   <i class="bi bi-reply-fill"></i>
                 </div>
                 <div class="stat-card-content">
-                  <h3 class="stat-card-title">
+                  <h3 class="stat-card-title" id="total-responses">
                     {% with response_count=0 %}
                       {% for form in forms %}
                         {% with form_responses=form.responses.count %}
-                          {% with response_count=response_count|add:form_responses %}{% endwith %}
+                          {% with response_count=response_count|add:form_responses %}
+                            {% if forloop.last %}{{ response_count }}{% endif %}
+                          {% endwith %}
                         {% endwith %}
                       {% endfor %}
-                      {{ response_count }}
                     {% endwith %}
                   </h3>
                   <p class="stat-card-text">Respuestas Recibidas</p>

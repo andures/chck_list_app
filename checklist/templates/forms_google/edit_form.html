@@ -1,236 +1,696 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ gform.title }} - Editar - Google Forms Clone{% endblock %}
+{% block title %}{{ gform.title }} - Editar - DragTask{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{% static 'css/forms_google.css' %}">
+<link rel="stylesheet" href="{% static 'css/forms_google.css' %}?v={% now 'U' %}">
+<style>
+  /* Estilos mejorados para la página de edición de formularios */
+  .edit-form-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    padding: 1.5rem 0;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .edit-form-header {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .edit-form-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,0.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    z-index: 0;
+  }
+  
+  .edit-form-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    animation: fadeInDown 0.6s ease-out;
+    background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+    display: inline-block;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.5rem;
+  }
+  
+  .edit-form-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    line-height: 1.7;
+    animation: fadeInUp 0.6s ease-out;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .edit-form-container {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  
+  .edit-form-header-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .edit-form-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(4px);
+    animation: fadeInLeft 0.6s ease-out;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .edit-form-badge i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .edit-form-card {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    border: 1px solid var(--neutral-200);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  [data-bs-theme="dark"] .edit-form-card {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-700);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .edit-form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .edit-form-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+  
+  .edit-form-card-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    position: relative;
+  }
+  
+  .edit-form-card-body {
+    padding: 1.5rem;
+  }
+  
+  .question-card {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--neutral-200);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  [data-bs-theme="dark"] .question-card {
+    background-color: var(--neutral-700);
+    border-color: var(--neutral-600);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .question-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .question-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  }
+  
+  .option-item {
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  [data-bs-theme="dark"] .option-item {
+    background-color: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .option-item:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  [data-bs-theme="dark"] .option-item:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .option-handle {
+    cursor: grab;
+    color: var(--neutral-400);
+  }
+  
+  .option-handle:active {
+    cursor: grabbing;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .action-btn {
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .action-btn:hover {
+    transform: translateY(-3px);
+  }
+  
+  .btn-preview {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  }
+  
+  .btn-preview:hover {
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+  }
+  
+  .btn-more {
+    background-color: var(--neutral-100);
+    color: var(--neutral-700);
+    border: 1px solid var(--neutral-200);
+  }
+  
+  .btn-more:hover {
+    background-color: var(--neutral-200);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  [data-bs-theme="dark"] .btn-more {
+    background-color: var(--neutral-700);
+    color: var(--neutral-300);
+    border-color: var(--neutral-600);
+  }
+  
+  [data-bs-theme="dark"] .btn-more:hover {
+    background-color: var(--neutral-600);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .status-card {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--neutral-200);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  [data-bs-theme="dark"] .status-card {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-700);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .status-info h5 {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+  }
+  
+  .status-badge.published {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+  }
+  
+  .status-badge.draft {
+    background-color: rgba(148, 163, 184, 0.1);
+    color: var(--neutral-500);
+  }
+  
+  [data-bs-theme="dark"] .status-badge.published {
+    background-color: rgba(52, 211, 153, 0.2);
+    color: var(--success);
+  }
+  
+  [data-bs-theme="dark"] .status-badge.draft {
+    background-color: rgba(148, 163, 184, 0.2);
+    color: var(--neutral-400);
+  }
+  
+  .btn-publish {
+    background: linear-gradient(135deg,163,184,0.2);
+    color: var(--neutral-400);
+  }
+  
+  .btn-publish {
+    background: linear-gradient(135deg, var(--success), #059669);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  }
+  
+  .btn-publish:hover {
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    transform: translateY(-3px);
+  }
+  
+  .btn-unpublish {
+    background-color: var(--neutral-100);
+    color: var(--neutral-700);
+    border: 1px solid var(--neutral-200);
+  }
+  
+  .btn-unpublish:hover {
+    background-color: var(--neutral-200);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+  }
+  
+  [data-bs-theme="dark"] .btn-unpublish {
+    background-color: var(--neutral-700);
+    color: var(--neutral-300);
+    border-color: var(--neutral-600);
+  }
+  
+  [data-bs-theme="dark"] .btn-unpublish:hover {
+    background-color: var(--neutral-600);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .empty-questions {
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: var(--neutral-50);
+    border-radius: 12px;
+    border: 1px dashed var(--neutral-300);
+    margin-bottom: 1.5rem;
+  }
+  
+  [data-bs-theme="dark"] .empty-questions {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-600);
+  }
+  
+  .empty-questions i {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+  }
+  
+  .custom-tooltip {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .custom-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(15, 23, 42, 0.9);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 10px;
+    z-index: 1;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .custom-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.9) transparent transparent transparent;
+    z-index: 100;
+  }
+  
+  /* Animaciones */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<section class="py-5">
-<div class="container">
-  <div class="row mb-4">
-    <div class="col-lg-8">
-      <h1 class="fw-bold">{{ gform.title }}</h1>
-    </div>
-    <div class="col-lg-4 text-lg-end">
-      <!-- Añadir botón para responder directamente -->
-      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
-          <a href="{% url 'gform_view' gform.id %}" class="btn btn-primary">
-              <i class="bi bi-eye me-2"></i>Vista Previa
-          </a>
-          <a href="{% url 'gform_respond' form_id=gform.id %}" class="btn btn-outline-primary">
-              <i class="bi bi-pencil-square me-2"></i>Responder
-          </a>
-          <a href="{% url 'gform_responses' gform.id %}" class="btn btn-outline-primary">
-              <i class="bi bi-bar-chart me-2"></i>Respuestas
-          </a>
-          <a href="{% url 'gform_list' %}" class="btn btn-outline-secondary">
-              <i class="bi bi-arrow-left me-2"></i>Volver
-          </a>
+<!-- Header con gradiente -->
+<div class="edit-form-header">
+  <div class="container">
+    <div class="edit-form-container">
+      <div class="edit-form-header-content">
+        <div class="edit-form-badge">
+          <i class="bi bi-pencil-square"></i>Editor de Formulario
+        </div>
+        <h1 class="edit-form-title">{{ gform.title }}</h1>
+        <p class="edit-form-subtitle">
+          Personaliza tu formulario añadiendo preguntas y configurando opciones
+        </p>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Detalles del Formulario -->
-  <div class="row mb-4">
-    <div class="col-lg-8 mx-auto">
-      <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-          <h3 class="card-title mb-0">Detalles del Formulario</h3>
-        </div>
-        <div class="card-body">
-          <form method="post" action="{% url 'gform_edit' gform.id %}">
-            {% csrf_token %}
-            
-            <div class="mb-3">
-              <label for="{{ form.title.id_for_label }}" class="form-label">Título del formulario *</label>
-              {{ form.title }}
-              {% if form.title.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.title.errors %}
-                    {{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            
-            <div class="mb-3">
-              <label for="{{ form.description.id_for_label }}" class="form-label">Descripción (opcional)</label>
-              {{ form.description }}
-              {% if form.description.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.description.errors %}
-                    {{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            
-            <div class="mb-3 form-check">
-              {{ form.is_published }}
-              <label for="{{ form.is_published.id_for_label }}" class="form-check-label">Publicar formulario</label>
-              {% if form.is_published.errors %}
-                <div class="invalid-feedback d-block">
-                  {% for error in form.is_published.errors %}
-                    {{ error }}
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-            
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-lg me-2"></i>Guardar Cambios
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Estado de publicación -->
-      <div class="card mb-4">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="mb-0">Estado: 
-                {% if gform.is_published %}
-                  <span class="badge bg-success">Publicado</span>
-                {% else %}
-                  <span class="badge bg-secondary">Borrador</span>
-                {% endif %}
-              </h5>
-              <p class="text-muted mb-0">
-                {% if gform.is_published %}
-                  El formulario está disponible para recibir respuestas.
-                {% else %}
-                  El formulario no está disponible para el público.
-                {% endif %}
-              </p>
-            </div>
-            <form method="post" action="{% url 'gform_toggle_publish' gform.id %}">
-              {% csrf_token %}
-              <button type="submit" class="btn {% if gform.is_published %}btn-outline-secondary{% else %}btn-success{% endif %}">
-                {% if gform.is_published %}
-                  <i class="bi bi-eye-slash me-2"></i>Despublicar
-                {% else %}
-                  <i class="bi bi-eye me-2"></i>Publicar
-                {% endif %}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Preguntas del Formulario -->
-      <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h3 class="card-title mb-0">Preguntas</h3>
-          <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
-            <i class="bi bi-plus-lg me-2"></i>Añadir Pregunta
-          </button>
-        </div>
-        <div class="card-body">
-          <div id="questionsList">
-            {% if questions %}
-              {% for question in questions %}
-                <div class="card mb-3 question-card" data-id="{{ question.id }}">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                      <span class="badge bg-info">{{ question.get_question_type_display }}</span>
-                      {% if question.is_required %}
-                        <span class="badge bg-danger ms-1">Obligatorio</span>
-                      {% endif %}
-                    </div>
-                    <div class="btn-group">
-                      <button type="button" class="btn btn-sm btn-outline-primary edit-question-btn" data-id="{{ question.id }}">
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button type="button" class="btn btn-sm btn-outline-danger delete-question-btn" data-id="{{ question.id }}">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">{{ question.text }}</h5>
-                    {% if question.help_text %}
-                      <p class="text-muted small">{{ question.help_text }}</p>
-                    {% endif %}
-                    
-                    {% if question.image %}
-                      <div class="mt-2 mb-3">
-                        <img src="{{ question.image.url }}" alt="Imagen de la pregunta" class="img-fluid rounded" style="max-height: 200px;">
-                      </div>
-                    {% endif %}
-                    
-                    <!-- Opciones para preguntas de selección -->
-                    {% if question.question_type in 'multiple_choice,checkbox,dropdown' %}
-                      <div class="mt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                          <h6 class="mb-0">Opciones:</h6>
-                          <button type="button" class="btn btn-sm btn-outline-primary add-option-btn" data-question-id="{{ question.id }}">
-                            <i class="bi bi-plus-lg"></i> Añadir opción
-                          </button>
-                        </div>
-                        
-                        <div class="options-list" data-question-id="{{ question.id }}">
-                          {% for option in question.options.all %}
-                            <div class="option-item d-flex align-items-center p-2 border rounded mb-2" data-id="{{ option.id }}">
-                              <div class="option-handle me-2"><i class="bi bi-grip-vertical"></i></div>
-                              <div class="option-text flex-grow-1">{{ option.text }}</div>
-                              <div class="option-actions">
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-option-btn" data-id="{{ option.id }}">
-                                  <i class="bi bi-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger delete-option-btn" data-id="{{ option.id }}">
-                                  <i class="bi bi-trash"></i>
-                                </button>
-                              </div>
-                            </div>
-                          {% empty %}
-                            <div class="text-muted text-center py-3">
-                              No hay opciones definidas. Añade opciones para esta pregunta.
-                            </div>
-                          {% endfor %}
-                        </div>
-                      </div>
-                    {% endif %}
-                    
-                    <!-- Configuración específica para escala lineal -->
-                    {% if question.question_type == 'linear_scale' %}
-                      <div class="mt-3 p-3 bg-light rounded">
-                        <h6 class="mb-2">Configuración de escala:</h6>
-                        <div class="row">
-                          <div class="col-6">
-                            <p class="mb-1"><strong>Valor mínimo:</strong> {{ question.min_value|default:"1" }}</p>
-                            <p class="mb-1"><strong>Etiqueta mínima:</strong> {{ question.min_label|default:"" }}</p>
-                          </div>
-                          <div class="col-6">
-                            <p class="mb-1"><strong>Valor máximo:</strong> {{ question.max_value|default:"5" }}</p>
-                            <p class="mb-1"><strong>Etiqueta máxima:</strong> {{ question.max_label|default:"" }}</p>
-                          </div>
-                        </div>
-                      </div>
-                    {% endif %}
-                  </div>
-                </div>
-              {% endfor %}
+<div class="container mb-5">
+  <div class="edit-form-container">
+    <!-- Botones de acción principales -->
+    <div class="action-buttons">
+      <a href="{% url 'gform_view' gform.id %}" class="btn action-btn btn-preview custom-tooltip" data-tooltip="Ver cómo se ve tu formulario">
+        <i class="bi bi-eye"></i>Vista Previa
+      </a>
+      <div class="dropdown">
+        <button class="btn action-btn btn-more dropdown-toggle" type="button" id="moreActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-three-dots"></i>Más acciones
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="moreActionsDropdown">
+          <li>
+            {% if gform.questions.count > 0 %}
+              <a class="dropdown-item responder-btn" href="{% url 'gform_respond' form_id=gform.id %}" data-has-questions="true">
+                <i class="bi bi-pencil-square me-2"></i>Responder
+              </a>
             {% else %}
-              <div class="text-center py-5">
-                <i class="bi bi-question-circle fs-1 text-primary mb-3"></i>
-                <h3>No hay preguntas en este formulario</h3>
-                <p class="text-muted">Haz clic en "Añadir Pregunta" para empezar a crear tu formulario.</p>
+              <a class="dropdown-item responder-btn" href="{% url 'gform_respond' form_id=gform.id %}" data-has-questions="false">
+                <i class="bi bi-pencil-square me-2"></i>Responder
+              </a>
+            {% endif %}
+          </li>
+          <li>
+            {% if gform.responses.count > 0 %}
+              <a class="dropdown-item responses-btn" href="{% url 'gform_responses' gform.id %}" data-has-responses="true">
+                <i class="bi bi-bar-chart me-2"></i>Respuestas
+              </a>
+            {% else %}
+              <a class="dropdown-item responses-btn" href="{% url 'gform_responses' gform.id %}" data-has-responses="false">
+                <i class="bi bi-bar-chart me-2"></i>Respuestas
+              </a>
+            {% endif %}
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="{% url 'gform_list' %}">
+              <i class="bi bi-arrow-left me-2"></i>Volver a la lista
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Estado de publicación -->
+    <div class="status-card">
+      <div class="status-info">
+        <h5 class="mb-0">Estado: 
+          {% if gform.is_published %}
+            <span class="status-badge published">Publicado</span>
+          {% else %}
+            <span class="status-badge draft">Borrador</span>
+          {% endif %}
+        </h5>
+        <p class="text-muted mb-0">
+          {% if gform.is_published %}
+            El formulario está disponible para recibir respuestas.
+          {% else %}
+            El formulario no está disponible para el público.
+          {% endif %}
+        </p>
+      </div>
+      <form method="post" action="{% url 'gform_toggle_publish' gform.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn action-btn {% if gform.is_published %}btn-unpublish{% else %}btn-publish{% endif %}">
+          {% if gform.is_published %}
+            <i class="bi bi-eye-slash"></i>Despublicar
+          {% else %}
+            <i class="bi bi-eye"></i>Publicar
+          {% endif %}
+        </button>
+      </form>
+    </div>
+
+    <!-- Formulario de detalles -->
+    <div class="edit-form-card">
+      <div class="edit-form-card-header">
+        <h3 class="card-title mb-0">Detalles del Formulario</h3>
+      </div>
+      <div class="edit-form-card-body">
+        <form method="post" action="{% url 'gform_edit' gform.id %}">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Título del formulario *</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in form.title.errors %}
+                  {{ error }}
+                {% endfor %}
               </div>
             {% endif %}
           </div>
+          
+          <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Descripción (opcional)</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in form.description.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="mb-3 form-check">
+            {{ form.is_published }}
+            <label for="{{ form.is_published.id_for_label }}" class="form-check-label">Publicar formulario</label>
+            {% if form.is_published.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in form.is_published.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Preguntas del Formulario -->
+    <div class="edit-form-card">
+      <div class="edit-form-card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Preguntas</h3>
+        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+          <i class="bi bi-plus-lg me-2"></i>Añadir Pregunta
+        </button>
+      </div>
+      <div class="edit-form-card-body">
+        <div id="questionsList">
+          {% if questions %}
+            {% for question in questions %}
+              <div class="question-card" data-id="{{ question.id }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <div>
+                    <span class="badge bg-info">{{ question.get_question_type_display }}</span>
+                    {% if question.is_required %}
+                      <span class="badge bg-danger ms-1">Obligatorio</span>
+                    {% endif %}
+                  </div>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-question-btn custom-tooltip" data-id="{{ question.id }}" data-tooltip="Editar pregunta">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger delete-question-btn custom-tooltip" data-id="{{ question.id }}" data-tooltip="Eliminar pregunta">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">{{ question.text }}</h5>
+                  {% if question.help_text %}
+                    <p class="text-muted small">{{ question.help_text }}</p>
+                  {% endif %}
+                  
+                  {% if question.image %}
+                    <div class="mt-2 mb-3">
+                      <img src="{{ question.image.url }}" alt="Imagen de la pregunta" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                  {% endif %}
+                  
+                  <!-- Opciones para preguntas de selección -->
+                  {% if question.question_type in 'multiple_choice,checkbox,dropdown' %}
+                    <div class="mt-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Opciones:</h6>
+                        <button type="button" class="btn btn-sm btn-outline-primary add-option-btn custom-tooltip" data-question-id="{{ question.id }}" data-tooltip="Añadir opción">
+                          <i class="bi bi-plus-lg"></i> Añadir opción
+                        </button>
+                      </div>
+                      
+                      <div class="options-list" data-question-id="{{ question.id }}">
+                        {% for option in question.options.all %}
+                          <div class="option-item d-flex align-items-center" data-id="{{ option.id }}">
+                            <div class="option-handle me-2"><i class="bi bi-grip-vertical"></i></div>
+                            <div class="option-text flex-grow-1">{{ option.text }}</div>
+                            <div class="option-actions">
+                              <button type="button" class="btn btn-sm btn-outline-primary edit-option-btn custom-tooltip" data-id="{{ option.id }}" data-tooltip="Editar opción">
+                                <i class="bi bi-pencil"></i>
+                              </button>
+                              <button type="button" class="btn btn-sm btn-outline-danger delete-option-btn custom-tooltip" data-id="{{ option.id }}" data-tooltip="Eliminar opción">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </div>
+                          </div>
+                        {% empty %}
+                          <div class="text-muted text-center py-3">
+                            No hay opciones definidas. Añade opciones para esta pregunta.
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
+                  
+                  <!-- Configuración específica para escala lineal -->
+                  {% if question.question_type == 'linear_scale' %}
+                    <div class="mt-3 p-3 bg-light rounded">
+                      <h6 class="mb-2">Configuración de escala:</h6>
+                      <div class="row">
+                        <div class="col-6">
+                          <p class="mb-1"><strong>Valor mínimo:</strong> {{ question.min_value|default:"1" }}</p>
+                          <p class="mb-1"><strong>Etiqueta mínima:</strong> {{ question.min_label|default:"" }}</p>
+                        </div>
+                        <div class="col-6">
+                          <p class="mb-1"><strong>Valor máximo:</strong> {{ question.max_value|default:"5" }}</p>
+                          <p class="mb-1"><strong>Etiqueta máxima:</strong> {{ question.max_label|default:"" }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <!-- Estado vacío -->
+            <div class="empty-questions">
+              <i class="bi bi-question-circle"></i>
+              <h3>No hay preguntas en este formulario</h3>
+              <p class="text-muted">Haz clic en "Añadir Pregunta" para empezar a crear tu formulario.</p>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
-</section>
 
+<!-- Incluir los modales existentes sin cambios -->
 <!-- Modal para añadir preguntas -->
 <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
 <div class="modal-dialog modal-lg">
@@ -495,6 +955,7 @@
   <div class="modal-content">
     <div class="modal-header">
       <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar eliminación</h5>
+      <button type="button" class="btn  id="deleteConfirmModalLabel">Confirmar eliminación</h5>
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
     <div class="modal-body">
@@ -509,6 +970,19 @@
 </div>
 </div>
 
+<!-- Toast para notificaciones -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+<div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast-header">
+    <i class="bi bi-info-circle me-2 text-primary"></i>
+    <strong class="me-auto">Notificación</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body" id="toastMessage">
+    Mensaje de notificación
+  </div>
+</div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -917,6 +1391,37 @@ if (editMaxLabel) editMaxLabel.addEventListener('input', updateEditScalePreview)
 // Inicializar vistas previas
 updateScalePreview();
 updateEditScalePreview();
+
+// Funcionalidad para mostrar notificaciones cuando no hay respuestas o preguntas
+document.querySelectorAll('.responses-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    if (this.dataset.hasResponses === 'false') {
+      e.preventDefault();
+      
+      // Mostrar notificación
+      const toastMessage = document.getElementById('toastMessage');
+      toastMessage.textContent = 'Este formulario aún no tiene respuestas.';
+      
+      const toast = new bootstrap.Toast(document.getElementById('notificationToast'));
+      toast.show();
+    }
+  });
+});
+
+document.querySelectorAll('.responder-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    if (this.dataset.hasQuestions === 'false') {
+      e.preventDefault();
+      
+      // Mostrar notificación
+      const toastMessage = document.getElementById('toastMessage');
+      toastMessage.textContent = 'Este formulario no tiene preguntas. Añade preguntas antes de responder.';
+      
+      const toast = new bootstrap.Toast(document.getElementById('notificationToast'));
+      toast.show();
+    }
+  });
+});
 });
 </script>
 {% endblock %}

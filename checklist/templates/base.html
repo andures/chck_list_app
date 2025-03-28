@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <!-- Base CSS -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <!-- Navigation CSS -->
+  <link rel="stylesheet" href="{% static 'css/navigation.css' %}">
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,15 +34,35 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="#features">Features</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#how-it-works">How It Works</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#pricing">Pricing</a>
-            </li>
+            {% if request.path == '/' %}
+              <!-- Enlaces para la página de inicio -->
+              <li class="nav-item">
+                <a class="nav-link" href="#features">Features</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#how-it-works">How It Works</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#pricing">Pricing</a>
+              </li>
+            {% else %}
+              <!-- Enlaces para otras páginas -->
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'todo_lists' %}">
+                  <i class="bi bi-list-check me-1"></i>Todo Lists
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'gform_list' %}">
+                  <i class="bi bi-file-earmark-text me-1"></i>Forms
+                </a>
+              </li>
+            {% endif %}
           </ul>
           <div class="d-flex gap-3 align-items-center">
             {% if user.is_authenticated %}
@@ -59,17 +81,19 @@
                     </div>
                   </li>
                   <li><hr class="dropdown-divider"></li>
-                  <li>
-                    <a class="dropdown-item" href="{% url 'dashboard' %}">
-                      <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                    </a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      <i class="bi bi-list-check me-2"></i>My Tasks
-                    </a>
-                  </li>
-                  <li><hr class="dropdown-divider"></li>
+                  {% if request.path == '/' %}
+                    <li>
+                      <a class="dropdown-item" href="{% url 'dashboard' %}">
+                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="{% url 'todo_lists' %}">
+                        <i class="bi bi-list-check me-2"></i>My Tasks
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                  {% endif %}
                   <li>
                     <form action="{% url 'logout' %}" method="post" class="dropdown-item-form">
                       {% csrf_token %}
@@ -95,12 +119,14 @@
                   </div>
                 </div>
                 <div class="d-flex flex-column gap-2 mt-3">
-                  <a href="{% url 'dashboard' %}" class="btn btn-outline-light w-100">
-                    <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                  </a>
-                  <a href="#" class="btn btn-outline-light w-100">
-                    <i class="bi bi-list-check me-2"></i>My Tasks
-                  </a>
+                  {% if request.path == '/' %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-light w-100">
+                      <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                    </a>
+                    <a href="{% url 'todo_lists' %}" class="btn btn-outline-light w-100">
+                      <i class="bi bi-list-check me-2"></i>My Tasks
+                    </a>
+                  {% endif %}
                   <form action="{% url 'logout' %}" method="post" class="w-100">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger w-100">
