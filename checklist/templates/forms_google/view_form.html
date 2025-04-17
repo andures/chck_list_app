@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
 {% block title %}{{ gform.title }} - DragTask{% endblock %}
 
@@ -234,17 +235,17 @@
   <div class="container">
     <div class="row mb-4">
       <div class="col-md-8">
-        <h1 class="fw-bold">Vista del Formulario</h1>
-        <p class="text-muted">Visualiza cómo se verá tu formulario para los usuarios</p>
+        <h1 class="fw-bold">{% trans_tag "Form View" %}</h1>
+        <p class="text-muted">{% trans_tag "See how your form will look to users" %}</p>
       </div>
       <div class="col-md-4 text-md-end">
         {% if is_owner %}
         <a href="{% url 'gform_edit' form_id=gform.id %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-2"></i>Volver a Editar
+          <i class="bi bi-arrow-left me-2"></i>{% trans_tag "Back to Edit" %}
         </a>
         {% else %}
         <a href="{% url 'gform_list' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-2"></i>Volver a Formularios
+          <i class="bi bi-arrow-left me-2"></i>{% trans_tag "Back to Forms" %}
         </a>
         {% endif %}
       </div>
@@ -281,9 +282,9 @@
               
               {% if not request.user.is_authenticated %}
               <div class="form-question animate-fade-in">
-                <label for="email" class="form-label fw-bold fs-5">Tu correo electrónico</label>
+                <label for="email" class="form-label fw-bold fs-5">{% trans_tag "Your email" %}</label>
                 <input type="email" class="form-control" id="email" name="email" required>
-                <div class="form-text mt-2">Tu correo electrónico se utilizará para identificar tu respuesta.</div>
+                <div class="form-text mt-2">{% trans_tag "Your email will be used to identify your response." %}</div>
               </div>
               {% endif %}
               
@@ -303,7 +304,7 @@
                   
                   {% if question.image %}
                   <div class="mt-3 mb-3">
-                    <img src="{{ question.image.url }}" alt="Imagen de la pregunta" class="question-image">
+                    <img src="{{ question.image.url }}" alt="{% trans_tag "Question image" %}" class="question-image">
                   </div>
                   {% endif %}
                 </div>
@@ -340,7 +341,7 @@
                 
                 {% elif question.question_type == 'dropdown' %}
                 <select class="form-select" id="question_{{ question.id }}" name="question_{{ question.id }}" {% if question.is_required %}required{% endif %}>
-                  <option value="">Selecciona una opción</option>
+                  <option value="">{% trans_tag "Select an option" %}</option>
                   {% for option in question.options.all %}
                   <option value="{{ option.id }}">{{ option.text }}</option>
                   {% endfor %}
@@ -363,26 +364,27 @@
                   </div>
                   {% endwith %}
                 </div>
-                
+
                 {% elif question.question_type == 'date' %}
                 <input type="date" class="form-control" id="question_{{ question.id }}" name="question_{{ question.id }}" {% if question.is_required %}required{% endif %}>
-                
+
                 {% elif question.question_type == 'time' %}
                 <input type="time" class="form-control" id="question_{{ question.id }}" name="question_{{ question.id }}" {% if question.is_required %}required{% endif %}>
-                
+
                 {% endif %}
-                
-                <!-- Campos para adjuntar archivos -->
+
+                <!-- Campos para adjuntar archivos (solo si están permitidos) -->
+                {% if question.allow_attachments %}
                 <div class="attachment-section">
                   <div class="mb-3">
                     <label for="file_{{ question.id }}" class="form-label d-flex align-items-center">
-                      <i class="bi bi-paperclip me-2"></i>Adjuntar imagen o video (opcional)
+                      <i class="bi bi-paperclip me-2"></i>{% trans_tag "Attach image or video (optional)" %}
                     </label>
                     <input type="file" class="form-control" id="file_{{ question.id }}" name="file_{{ question.id }}" accept="image/*,video/*">
                   </div>
                   <div class="mb-3">
                     <label for="url_{{ question.id }}" class="form-label d-flex align-items-center">
-                      <i class="bi bi-link-45deg me-2"></i>O proporciona una URL de imagen/video (opcional)
+                      <i class="bi bi-link-45deg me-2"></i>{% trans_tag "Or provide an image/video URL (optional)" %}
                     </label>
                     <input type="url" class="form-control" id="url_{{ question.id }}" name="url_{{ question.id }}" placeholder="https://ejemplo.com/imagen.jpg">
                   </div>
@@ -391,7 +393,7 @@
                   <div class="attachment-preview d-none" id="preview_{{ question.id }}">
                     <div class="card">
                       <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Vista previa</span>
+                        <span>{% trans_tag "Preview" %}</span>
                         <button type="button" class="btn-close" aria-label="Close" onclick="clearPreview('preview_{{ question.id }}')"></button>
                       </div>
                       <div class="card-body p-0 text-center">
@@ -400,6 +402,7 @@
                     </div>
                   </div>
                 </div>
+                {% endif %}
               </div>
               {% endfor %}
               
@@ -408,17 +411,17 @@
                 <div>
                   {% if is_owner %}
                   <a href="{% url 'gform_edit' form_id=gform.id %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i> Volver a Editar
+                    <i class="bi bi-arrow-left me-2"></i> {% trans_tag "Back to Edit" %}
                   </a>
                   {% endif %}
                 </div>
                 
                 <div class="d-flex gap-2">
                   <a href="{% url 'gform_respond' form_id=gform.id %}" class="btn btn-outline-primary">
-                    <i class="bi bi-pencil-square me-2"></i> Modo Respuesta
+                    <i class="bi bi-pencil-square me-2"></i> {% trans_tag "Response Mode" %}
                   </a>
                   <button type="submit" class="btn btn-send">
-                    <i class="bi bi-send me-2"></i> Enviar Respuesta
+                    <i class="bi bi-send me-2"></i> {% trans_tag "Submit Response" %}
                   </button>
                 </div>
               </div>
@@ -452,16 +455,16 @@
             previewContainer.classList.remove('d-none');
             
             if (file.type.startsWith('image/')) {
-              previewContent.innerHTML = `<img src="${e.target.result}" class="img-fluid" alt="Vista previa">`;
+              previewContent.innerHTML = `<img src="${e.target.result}" class="img-fluid" alt="{% trans_tag "Preview" %}">`;
             } else if (file.type.startsWith('video/')) {
               previewContent.innerHTML = `
                 <video controls class="img-fluid">
                   <source src="${e.target.result}" type="${file.type}">
-                  Tu navegador no soporta la reproducción de videos.
+                  {% trans_tag "Your browser does not support video playback." %}
                 </video>
               `;
             } else {
-              previewContent.innerHTML = `<p class="p-3">Archivo seleccionado: ${file.name}</p>`;
+              previewContent.innerHTML = `<p class="p-3">{% trans_tag "Selected file" %}: ${file.name}</p>`;
             }
           }
           
@@ -482,18 +485,18 @@
           previewContainer.classList.remove('d-none');
           
           if (url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.png') || url.endsWith('.gif')) {
-            previewContent.innerHTML = `<img src="${this.value}" class="img-fluid" alt="Vista previa">`;
+            previewContent.innerHTML = `<img src="${this.value}" class="img-fluid" alt="{% trans_tag "Preview" %}">`;
           } else if (url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.ogg')) {
             previewContent.innerHTML = `
               <video controls class="img-fluid">
                 <source src="${this.value}" type="video/mp4">
-                Tu navegador no soporta la reproducción de videos.
+                {% trans_tag "Your browser does not support video playback." %}
               </video>
             `;
           } else {
             previewContent.innerHTML = `
               <div class="p-3">
-                <p class="mb-2">URL proporcionada:</p>
+                <p class="mb-2">{% trans_tag "Provided URL" %}:</p>
                 <a href="${this.value}" target="_blank" class="d-block text-truncate">${this.value}</a>
               </div>
             `;

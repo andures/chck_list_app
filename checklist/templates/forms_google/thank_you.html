@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
 {% block title %}Gracias por tu respuesta - DragTask{% endblock %}
 
@@ -258,11 +259,11 @@
     <div class="thank-you-container">
       <div class="thank-you-header-content">
         <div class="thank-you-badge">
-          <i class="bi bi-check-circle"></i>Respuesta Enviada
+          <i class="bi bi-check-circle"></i>{% trans_tag "Response Submitted" %}
         </div>
-        <h1 class="thank-you-title">¡Gracias por tu respuesta!</h1>
+        <h1 class="thank-you-title">{% trans_tag "Thank you for your response!" %}</h1>
         <p class="thank-you-subtitle">
-          Tu respuesta ha sido registrada correctamente y está disponible para su revisión.
+          {% trans_tag "Your response has been recorded correctly and is available for review." %}
         </p>
       </div>
     </div>
@@ -276,17 +277,17 @@
         <div class="success-icon">
           <i class="bi bi-check-lg"></i>
         </div>
-        <h2 class="mb-3">Respuesta Registrada</h2>
-        <p class="lead mb-4">Tu respuesta al formulario "{{ gform.title }}" ha sido guardada exitosamente.</p>
+        <h2 class="mb-3">{% trans_tag "Response Recorded" %}</h2>
+        <p class="lead mb-4">{% trans_tag "Your response to the form" %} "{{ gform.title }}" {% trans_tag "has been successfully saved." %}</p>
         
         <div class="action-buttons">
           <a href="{% url 'home' %}" class="btn action-btn btn-home">
-            <i class="bi bi-house"></i>Volver al Inicio
+            <i class="bi bi-house"></i>{% trans_tag "Back to Home" %}
           </a>
           
           {% if request.user.is_authenticated %}
           <a href="{% url 'dashboard' %}" class="btn action-btn btn-dashboard">
-            <i class="bi bi-speedometer2"></i>Ir al Dashboard
+            <i class="bi bi-speedometer2"></i>{% trans_tag "Go to Dashboard" %}
           </a>
           {% endif %}
         </div>

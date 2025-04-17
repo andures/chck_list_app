@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
 {% block title %}{{ todo_list.name }} - DragTask{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+<link rel="stylesheet" href="{% static 'css/view_todo_list.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,17 +16,17 @@
       <div class="col-lg-8">
         <h1 class="fw-bold">{{ todo_list.name }}</h1>
         <p class="text-muted">
-          <i class="bi bi-calendar3 me-1"></i> Creada: {{ todo_list.created_at|date:"d/m/Y" }} | 
-          <i class="bi bi-list-check me-1"></i> {{ todo_list.tasks.count }} tareas en total
+          <i class="bi bi-calendar3 me-1"></i> {% trans_tag "Created" %}: {{ todo_list.created_at|date:"d/m/Y" }} | 
+          <i class="bi bi-list-check me-1"></i> {{ todo_list.tasks.count }} {% trans_tag "tasks in total" %}
         </p>
       </div>
       <div class="col-lg-4 text-lg-end">
         <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
           <a href="{% url 'add_task' todo_list.id %}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>Agregar Tarea
+            <i class="bi bi-plus-lg me-2"></i>{% trans_tag "Add Task" %}
           </a>
           <a href="{% url 'todo_lists' %}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-left me-2"></i>Volver
+            <i class="bi bi-arrow-left me-2"></i>{% trans_tag "Back" %}
           </a>
         </div>
       </div>
@@ -34,17 +36,17 @@
       <div class="task-board-header">
         <div class="d-flex align-items-center">
           <i class="bi bi-kanban me-2"></i>
-          <span>Tablero de Tareas</span>
+          <span>{% trans_tag "Task Board" %}</span>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <span class="d-none d-md-inline text-white-50">Arrastra las tareas para cambiar su estado</span>
+          <span class="d-none d-md-inline text-white-50">{% trans_tag "Drag tasks to change their status" %}</span>
         </div>
       </div>
       <div class="task-board-content">
         <!-- Columna: Por Hacer -->
         <div class="task-column">
           <div class="task-column-header">
-            <span>Por Hacer</span>
+            <span>{% trans_tag "To Do" %}</span>
             <span class="task-count" id="todo-count">{{ tasks.todo|length }}</span>
           </div>
           <div class="task-items" id="todo-tasks" data-column="todo">
@@ -55,10 +57,10 @@
                    data-task-id="{{ task.id }}" 
                    data-due-date="{% if task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
                 <div class="task-card-actions">
-                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn" aria-label="Editar tarea">
+                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn" aria-label="{% trans_tag 'Edit task' %}">
                     <i class="bi bi-pencil"></i>
                   </a>
-                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}" aria-label="Eliminar tarea">
+                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}" aria-label="{% trans_tag 'Delete task' %}">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -70,9 +72,9 @@
                   <div class="task-due-date">
                     <i class="bi bi-calendar me-1"></i>{{ task.due_date|date:"d/m/Y H:i" }}
                     {% if task.due_date < today_date %}
-                      <span class="badge bg-danger ms-1">Vencida</span>
+                      <span class="badge bg-danger ms-1">{% trans_tag "Overdue" %}</span>
                     {% elif task.due_date == today_date %}
-                      <span class="badge bg-success ms-1">Hoy</span>
+                      <span class="badge bg-success ms-1">{% trans_tag "Today" %}</span>
                     {% endif %}
                   </div>
                 {% endif %}
@@ -80,9 +82,9 @@
             {% endfor %}
             <div class="empty-column-message text-center p-4 text-muted" id="todo-empty-message" {% if tasks.todo %}style="display: none;"{% endif %}>
               <i class="bi bi-inbox fs-1 mb-2 d-block"></i>
-              <p>No hay tareas por hacer</p>
+              <p>{% trans_tag "No tasks to do" %}</p>
               <a href="{% url 'add_task' todo_list.id %}" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-plus-lg me-1"></i>Agregar
+                <i class="bi bi-plus-lg me-1"></i>{% trans_tag "Add" %}
               </a>
             </div>
           </div>
@@ -91,7 +93,7 @@
         <!-- Columna: En Progreso -->
         <div class="task-column">
           <div class="task-column-header">
-            <span>En Progreso</span>
+            <span>{% trans_tag "In Progress" %}</span>
             <span class="task-count" id="progress-count">{{ tasks.progress|length }}</span>
           </div>
           <div class="task-items" id="progress-tasks" data-column="progress">
@@ -102,10 +104,10 @@
                    data-task-id="{{ task.id }}" 
                    data-due-date="{% if task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
                 <div class="task-card-actions">
-                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn" aria-label="Editar tarea">
+                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn" aria-label="{% trans_tag 'Edit task' %}">
                     <i class="bi bi-pencil"></i>
                   </a>
-                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}" aria-label="Eliminar tarea">
+                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}" aria-label="{% trans_tag 'Delete task' %}">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -117,9 +119,9 @@
                   <div class="task-due-date">
                     <i class="bi bi-calendar me-1"></i>{{ task.due_date|date:"d/m/Y H:i" }}
                     {% if task.due_date.date < today_date %}
-                      <span class="badge bg-danger ms-1">Vencida</span>
+                      <span class="badge bg-danger ms-1">{% trans_tag "Overdue" %}</span>
                     {% elif task.due_date.date == today_date %}
-                      <span class="badge bg-success ms-1">Hoy</span>
+                      <span class="badge bg-success ms-1">{% trans_tag "Today" %}</span>
                     {% endif %}
                   </div>
                 {% endif %}
@@ -127,8 +129,8 @@
             {% endfor %}
             <div class="empty-column-message text-center p-4 text-muted" id="progress-empty-message" {% if tasks.progress %}style="display: none;"{% endif %}>
               <i class="bi bi-hourglass-split fs-1 mb-2 d-block"></i>
-              <p>No hay tareas en progreso</p>
-              <small>Arrastra tareas aquí para marcarlas como "En Progreso"</small>
+              <p>{% trans_tag "No tasks in progress" %}</p>
+              <small>{% trans_tag "Drag tasks here to mark them as 'In Progress'" %}</small>
             </div>
           </div>
         </div>
@@ -136,7 +138,7 @@
         <!-- Columna: Completado -->
         <div class="task-column">
           <div class="task-column-header">
-            <span>Completado</span>
+            <span>{% trans_tag "Completed" %}</span>
             <span class="task-count" id="done-count">{{ tasks.done|length }}</span>
           </div>
           <div class="task-items" id="done-tasks" data-column="done">
@@ -147,10 +149,10 @@
                    data-task-id="{{ task.id }}" 
                    data-due-date="{% if task.due_date %}{{ task.due_date|date:'Y-m-d' }}{% endif %}">
                 <div class="task-card-actions">
-                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn" aria-label="Editar tarea">
+                  <a href="{% url 'edit_task' task.id %}" class="task-action-btn edit-btn" aria-label="{% trans_tag 'Edit task' %}">
                     <i class="bi bi-pencil"></i>
                   </a>
-                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}" aria-label="Eliminar tarea">
+                  <button type="button" class="task-action-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteTaskModal" data-task-id="{{ task.id }}" aria-label="{% trans_tag 'Delete task' %}">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -162,9 +164,9 @@
                   <div class="task-due-date">
                     <i class="bi bi-calendar me-1"></i>{{ task.due_date|date:"d/m/Y H:i" }}
                     {% if task.due_date.date < today_date %}
-                      <span class="badge bg-danger ms-1">Vencida</span>
+                      <span class="badge bg-danger ms-1">{% trans_tag "Overdue" %}</span>
                     {% elif task.due_date.date == today_date %}
-                      <span class="badge bg-success ms-1">Hoy</span>
+                      <span class="badge bg-success ms-1">{% trans_tag "Today" %}</span>
                     {% endif %}
                   </div>
                 {% endif %}
@@ -172,8 +174,8 @@
             {% endfor %}
             <div class="empty-column-message text-center p-4 text-muted" id="done-empty-message" {% if tasks.done %}style="display: none;"{% endif %}>
               <i class="bi bi-check2-circle fs-1 mb-2 d-block"></i>
-              <p>No hay tareas completadas</p>
-              <small>Arrastra tareas aquí para marcarlas como "Completadas"</small>
+              <p>{% trans_tag "No completed tasks" %}</p>
+              <small>{% trans_tag "Drag tasks here to mark them as 'Completed'" %}</small>
             </div>
           </div>
         </div>
@@ -185,10 +187,10 @@
       <div class="col-12">
         <div class="card shadow-sm">
           <div class="card-body">
-            <h5 class="card-title mb-3">Estadísticas de la lista</h5>
+            <h5 class="card-title mb-3">{% trans_tag "List Statistics" %}</h5>
             <div class="row g-4">
               <div class="col-md-6">
-                <h6 class="text-muted mb-2">Progreso general</h6>
+                <h6 class="text-muted mb-2">{% trans_tag "Overall Progress" %}</h6>
                 {% with todo_count=tasks.todo|length %}
                   {% with progress_count=tasks.progress|length %}
                     {% with done_count=tasks.done|length %}
@@ -202,7 +204,7 @@
                               id="main-progress-bar"></div>
                         </div>
                         <div class="d-flex justify-content-between mt-2 small">
-                          <span id="tasks-completed-text">{{ done_count }} de {{ total }} tareas completadas</span>
+                          <span id="tasks-completed-text">{{ done_count }} {% trans_tag "of" %} {{ total }} {% trans_tag "tasks completed" %}</span>
                           <span id="progress-percentage">0%</span>
                         </div>
                       {% endwith %}
@@ -211,19 +213,19 @@
                 {% endwith %}
               </div>
               <div class="col-md-6">
-                <h6 class="text-muted mb-2">Distribución de tareas</h6>
+                <h6 class="text-muted mb-2">{% trans_tag "Task Distribution" %}</h6>
                 <div class="d-flex gap-3">
                   <div class="stat-pill">
                     <span class="stat-value todo-value" id="todo-stat">{{ tasks.todo|length }}</span>
-                    <span class="stat-label">Por hacer</span>
+                    <span class="stat-label">{% trans_tag "To Do" %}</span>
                   </div>
                   <div class="stat-pill">
                     <span class="stat-value progress-value" id="progress-stat">{{ tasks.progress|length }}</span>
-                    <span class="stat-label">En progreso</span>
+                    <span class="stat-label">{% trans_tag "In Progress" %}</span>
                   </div>
                   <div class="stat-pill">
                     <span class="stat-value done-value" id="done-stat">{{ tasks.done|length }}</span>
-                    <span class="stat-label">Completadas</span>
+                    <span class="stat-label">{% trans_tag "Completed" %}</span>
                   </div>
                 </div>
               </div>
@@ -240,8 +242,8 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteTaskModalLabel">Eliminar Tarea</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="deleteTaskModalLabel">{% trans_tag "Delete Task" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans_tag 'Close' %}"></button>
       </div>
       <div class="modal-body">
         <div class="d-flex align-items-center gap-3 mb-3">
@@ -249,15 +251,15 @@
             <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
           </div>
           <div>
-            <h5 class="mb-1">¿Estás seguro?</h5>
-            <p class="mb-0 text-muted">Esta acción no se puede deshacer.</p>
+            <h5 class="mb-1">{% trans_tag "Are you sure?" %}</h5>
+            <p class="mb-0 text-muted">{% trans_tag "This action cannot be undone." %}</p>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans_tag "Cancel" %}</button>
         <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-          <i class="bi bi-trash me-2"></i>Eliminar
+          <i class="bi bi-trash me-2"></i>{% trans_tag "Delete" %}
         </button>
       </div>
     </div>
@@ -306,7 +308,7 @@
       
       // Actualizar texto de porcentaje
       document.getElementById('progress-percentage').textContent = percentage + '%';
-      document.getElementById('tasks-completed-text').textContent = `${doneCount} de ${totalCount} tareas completadas`;
+      document.getElementById('tasks-completed-text').textContent = `${doneCount} {% trans_tag "of" %} ${totalCount} {% trans_tag "tasks completed" %}`;
       
       // Mostrar/ocultar mensajes de columnas vacías
       toggleEmptyMessage('todo', todoCount);
@@ -364,10 +366,10 @@
     // Mostrar toast de bienvenida
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('created') === 'true') {
-      showToast('Tarea creada correctamente', 'success');
+      showToast('{% trans_tag "Task created successfully" %}', 'success');
     }
     if (urlParams.get('updated') === 'true') {
-      showToast('Tarea actualizada correctamente', 'success');
+      showToast('{% trans_tag "Task updated successfully" %}', 'success');
     }
     
     // Función para mostrar toast

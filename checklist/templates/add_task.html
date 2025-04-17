@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
-{% block title %}Agregar Tarea - DragTask{% endblock %}
+{% block title %}{% trans_tag "Add Task" %} - DragTask{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/todolist.css' %}">
@@ -75,13 +76,13 @@
       <div class="col-md-8">
         <h1 class="fw-bold page-title">
           <i class="bi bi-plus-circle text-primary me-2"></i>
-          Agregar Tarea a "{{ todo_list.name }}"
+          {% trans_tag "Add Task to" %} "{{ todo_list.name }}"
         </h1>
-        <p class="text-muted page-subtitle">Completa el formulario para añadir una nueva tarea a tu lista</p>
+        <p class="text-muted page-subtitle">{% trans_tag "Complete the form to add a new task to your list" %}</p>
       </div>
       <div class="col-md-4 text-md-end">
         <a href="{% url 'view_todo_list' todo_list.id %}" class="btn btn-outline-primary">
-          <i class="bi bi-arrow-left me-2"></i>Volver a la Lista
+          <i class="bi bi-arrow-left me-2"></i>{% trans_tag "Back to List" %}
         </a>
       </div>
     </div>
@@ -106,7 +107,7 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Un título claro y conciso para tu tarea</div>
+                <div class="form-text">{% trans_tag "A clear and concise title for your task" %}</div>
               </div>
               
               <div class="mb-4">
@@ -121,7 +122,7 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Describe los detalles de la tarea</div>
+                <div class="form-text">{% trans_tag "Describe the details of the task" %}</div>
               </div>
 
               <div class="mb-4 position-relative">
@@ -141,7 +142,7 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Selecciona la fecha límite para completar esta tarea</div>
+                <div class="form-text">{% trans_tag "Select the deadline to complete this task" %}</div>
               </div>              
                             
               <div class="mb-4">
@@ -156,15 +157,15 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Establece el estado inicial de la tarea</div>
+                <div class="form-text">{% trans_tag "Set the initial status of the task" %}</div>
               </div>
               
               <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary btn-lg">
-                  <i class="bi bi-plus-circle me-2"></i>Agregar Tarea
+                  <i class="bi bi-plus-circle me-2"></i>{% trans_tag "Add Task" %}
                 </button>
                 <a href="{% url 'view_todo_list' todo_list.id %}" class="btn btn-outline-secondary">
-                  Cancelar
+                  {% trans_tag "Cancel" %}
                 </a>
               </div>
             </form>
@@ -177,24 +178,24 @@
         <div class="task-preview">
           <div class="preview-header">
             <h5 class="mb-0 d-flex align-items-center">
-              <i class="bi bi-eye me-2"></i>Vista previa de la tarea
+              <i class="bi bi-eye me-2"></i>{% trans_tag "Task Preview" %}
             </h5>
           </div>
           <div class="preview-body">
             <div class="mb-4">
-              <h4 id="preview-title" class="fw-bold mb-3">Título de la tarea</h4>
-              <p id="preview-description" class="mb-4 text-muted">Descripción de la tarea con todos los detalles necesarios para completarla correctamente.</p>
+              <h4 id="preview-title" class="fw-bold mb-3">{% trans_tag "Task title" %}</h4>
+              <p id="preview-description" class="mb-4 text-muted">{% trans_tag "Task description with all the necessary details to complete it correctly." %}</p>
             </div>
             
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span id="preview-status" class="badge bg-primary px-3 py-2">Por hacer</span>
-              <span id="preview-date" class="text-muted"><i class="bi bi-calendar me-1"></i>Fecha límite</span>
+              <span id="preview-status" class="badge bg-primary px-3 py-2">{% trans_tag "To Do" %}</span>
+              <span id="preview-date" class="text-muted"><i class="bi bi-calendar me-1"></i>{% trans_tag "Due date" %}</span>
             </div>
             
             <div class="mt-4 pt-3 border-top">
               <div class="d-flex justify-content-between align-items-center">
                 <div>
-                  <span class="text-muted small">Creada por:</span>
+                  <span class="text-muted small">{% trans_tag "Created by:" %}</span>
                   <div class="d-flex align-items-center mt-1">
                     <div class="avatar-circle me-2" style="width: 30px; height: 30px;">
                       <span class="avatar-initials" style="font-size: 0.8rem;">{{ user.username|slice:":2"|upper }}</span>
@@ -203,9 +204,9 @@
                   </div>
                 </div>
                 <div class="text-end">
-                  <span class="text-muted small">Prioridad:</span>
+                  <span class="text-muted small">{% trans_tag "Priority:" %}</span>
                   <div class="mt-1">
-                    <span class="badge bg-warning">Media</span>
+                    <span class="badge bg-warning">{% trans_tag "Medium" %}</span>
                   </div>
                 </div>
               </div>
@@ -251,11 +252,11 @@
     
     // Actualizar vista previa cuando se escriba en los campos
     titleInput.addEventListener('input', function() {
-      previewTitle.textContent = this.value || 'Título de la tarea';
+      previewTitle.textContent = this.value || '{% trans_tag "Task title" %}';
     });
     
     descriptionInput.addEventListener('input', function() {
-      previewDescription.textContent = this.value || 'Descripción de la tarea con todos los detalles necesarios para completarla correctamente.';
+      previewDescription.textContent = this.value || '{% trans_tag "Task description with all the necessary details to complete it correctly." %}';
     });
     
     statusInput.addEventListener('change', function() {
@@ -297,21 +298,21 @@
     // Configurar Flatpickr con tema y opciones mejoradas
     const fpInstance = flatpickr("#id_due_date", {
       dateFormat: "Y-m-d",
-      locale: "es",
+      locale: "{{ LANGUAGE_CODE }}",
       minDate: "today",
       disableMobile: true,
       onChange: function(selectedDates, dateStr) {
         // Actualizar la vista previa con la fecha seleccionada
         const previewDate = document.getElementById('preview-date');
         if (dateStr) {
-          const formattedDate = new Date(dateStr).toLocaleDateString('es-ES', {
+          const formattedDate = new Date(dateStr).toLocaleDateString('{{ LANGUAGE_CODE }}' === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
           });
           previewDate.innerHTML = `<i class="bi bi-calendar me-1"></i>${formattedDate}`;
         } else {
-          previewDate.innerHTML = `<i class="bi bi-calendar me-1"></i>Sin fecha límite`;
+          previewDate.innerHTML = `<i class="bi bi-calendar me-1"></i>{% trans_tag "No due date" %}`;
         }
       }
     });

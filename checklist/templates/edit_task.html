@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
-{% block title %}Editar Tarea - DragTask{% endblock %}
+{% block title %}{% trans_tag "Edit Task" %} - DragTask{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/todolist.css' %}">
@@ -75,13 +76,13 @@
       <div class="col-md-8">
         <h1 class="fw-bold page-title">
           <i class="bi bi-pencil-square text-primary me-2"></i>
-          Editar Tarea "{{ form.instance.title }}"
+          {% trans_tag "Edit Task" %} "{{ form.instance.title }}"
         </h1>
-        <p class="text-muted page-subtitle">Modifica los detalles de la tarea según sea necesario</p>
+        <p class="text-muted page-subtitle">{% trans_tag "Modify the task details as needed" %}</p>
       </div>
       <div class="col-md-4 text-md-end">
         <a href="{% url 'view_todo_list' todo_list.id %}" class="btn btn-outline-primary">
-          <i class="bi bi-arrow-left me-2"></i>Volver a la Lista
+          <i class="bi bi-arrow-left me-2"></i>{% trans_tag "Back to List" %}
         </a>
       </div>
     </div>
@@ -96,7 +97,7 @@
               
               <div class="mb-4">
                 <label for="{{ form.title.id_for_label }}" class="form-label">
-                  <i class="bi bi-card-heading me-2"></i>{{ form.title.label }}
+                  <i class="bi bi-card-heading me-2"></i>{% trans_tag form.title.label %}
                 </label>
                 {{ form.title }}
                 {% if form.title.errors %}
@@ -106,12 +107,12 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Un título claro y conciso para tu tarea</div>
+                <div class="form-text">{% trans_tag "A clear and concise title for your task" %}</div>
               </div>
               
               <div class="mb-4">
                 <label for="{{ form.description.id_for_label }}" class="form-label">
-                  <i class="bi bi-text-paragraph me-2"></i>{{ form.description.label }}
+                  <i class="bi bi-text-paragraph me-2"></i>{% trans_tag form.description.label %}
                 </label>
                 {{ form.description }}
                 {% if form.description.errors %}
@@ -121,12 +122,12 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Describe los detalles de la tarea</div>
+                <div class="form-text">{% trans_tag "Describe the details of the task" %}</div>
               </div>
 
               <div class="mb-4 position-relative">
                 <label for="{{ form.due_date.id_for_label }}" class="form-label">
-                  <i class="bi bi-calendar-event me-2"></i>{{ form.due_date.label }}
+                  <i class="bi bi-calendar-event me-2"></i>{% trans_tag form.due_date.label %}
                 </label>
                 
                 <div class="input-group">
@@ -141,12 +142,12 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Selecciona la fecha límite para completar esta tarea</div>
+                <div class="form-text">{% trans_tag "Select the deadline to complete this task" %}</div>
               </div>              
                             
               <div class="mb-4">
                 <label for="{{ form.status.id_for_label }}" class="form-label">
-                  <i class="bi bi-list-check me-2"></i>{{ form.status.label }}
+                  <i class="bi bi-list-check me-2"></i>{% trans_tag form.status.label %}
                 </label>
                 {{ form.status }}
                 {% if form.status.errors %}
@@ -156,15 +157,15 @@
                     {% endfor %}
                   </div>
                 {% endif %}
-                <div class="form-text">Establece el estado actual de la tarea</div>
+                <div class="form-text">{% trans_tag "Set the current status of the task" %}</div>
               </div>
               
               <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary btn-lg">
-                  <i class="bi bi-check-circle me-2"></i>Guardar Cambios
+                  <i class="bi bi-check-circle me-2"></i>{% trans_tag "Save Changes" %}
                 </button>
                 <a href="{% url 'view_todo_list' todo_list.id %}" class="btn btn-outline-secondary">
-                  Cancelar
+                  {% trans_tag "Cancel" %}
                 </a>
               </div>
             </form>
@@ -177,7 +178,7 @@
         <div class="task-preview">
           <div class="preview-header">
             <h5 class="mb-0 d-flex align-items-center">
-              <i class="bi bi-eye me-2"></i>Vista previa de la tarea
+              <i class="bi bi-eye me-2"></i>{% trans_tag "Task preview" %}
             </h5>
           </div>
           <div class="preview-body">
@@ -189,11 +190,11 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
               <span id="preview-status" class="badge bg-primary px-3 py-2">
                 {% if form.instance.status == 'todo' %}
-                  Por hacer
+                  {% trans_tag "To Do" %}
                 {% elif form.instance.status == 'in_progress' %}
-                  En progreso
+                  {% trans_tag "In Progress" %}
                 {% elif form.instance.status == 'done' %}
-                  Completada
+                  {% trans_tag "Completed" %}
                 {% endif %}
               </span>
               <span id="preview-date" class="text-muted">
@@ -201,7 +202,7 @@
                 {% if form.instance.due_date %}
                   {{ form.instance.due_date|date:"d/m/Y" }}
                 {% else %}
-                  Sin fecha límite
+                  {% trans_tag "No due date" %}
                 {% endif %}
               </span>
             </div>
@@ -209,7 +210,7 @@
             <div class="mt-4 pt-3 border-top">
               <div class="d-flex justify-content-between align-items-center">
                 <div>
-                  <span class="text-muted small">Creada por:</span>
+                  <span class="text-muted small">{% trans_tag "Created by:" %}</span>
                   <div class="d-flex align-items-center mt-1">
                     <div class="avatar-circle me-2" style="width: 30px; height: 30px;">
                       <span class="avatar-initials" style="font-size: 0.8rem;">{{ user.username|slice:":2"|upper }}</span>
@@ -218,7 +219,7 @@
                   </div>
                 </div>
                 <div class="text-end">
-                  <span class="text-muted small">Última edición:</span>
+                  <span class="text-muted small">{% trans_tag "Last edit:" %}</span>
                   <div class="mt-1">
                     <span class="badge bg-secondary">{{ form.instance.updated_at|date:"d/m/Y H:i" }}</span>
                   </div>
@@ -266,11 +267,11 @@
     
     // Actualizar vista previa cuando se escriba en los campos
     titleInput.addEventListener('input', function() {
-      previewTitle.textContent = this.value || 'Título de la tarea';
+      previewTitle.textContent = this.value || '{% trans_tag "Task title" %}';
     });
     
     descriptionInput.addEventListener('input', function() {
-      previewDescription.textContent = this.value || 'Descripción de la tarea con todos los detalles necesarios para completarla correctamente.';
+      previewDescription.textContent = this.value || '{% trans_tag "Task description with all the necessary details to complete it correctly." %}';
     });
     
     statusInput.addEventListener('change', function() {
@@ -312,21 +313,21 @@
     // Configurar Flatpickr con tema y opciones mejoradas
     const fpInstance = flatpickr("#id_due_date", {
       dateFormat: "Y-m-d",
-      locale: "es",
+      locale: "{{ LANGUAGE_CODE }}",
       minDate: "today",
       disableMobile: true,
       onChange: function(selectedDates, dateStr) {
         // Actualizar la vista previa con la fecha seleccionada
         const previewDate = document.getElementById('preview-date');
         if (dateStr) {
-          const formattedDate = new Date(dateStr).toLocaleDateString('es-ES', {
+          const formattedDate = new Date(dateStr).toLocaleDateString('{{ LANGUAGE_CODE }}' === 'es' ? 'es-ES' : 'en-US', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
           });
           previewDate.innerHTML = `<i class="bi bi-calendar me-1"></i>${formattedDate}`;
         } else {
-          previewDate.innerHTML = `<i class="bi bi-calendar me-1"></i>Sin fecha límite`;
+          previewDate.innerHTML = `<i class="bi bi-calendar me-1"></i>{% trans_tag "No due date" %}`;
         }
       }
     });

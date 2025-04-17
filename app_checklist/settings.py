@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from environs import Env
+
 env = Env()
 Env.read_env()
 ENVIRONMENT = env('ENVIRONMENT', default='production')
@@ -53,10 +54,13 @@ INSTALLED_APPS = [
     'widget_tweaks',
 ]
 
+# Middleware optimizado para rendimiento
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise debe estar justo después de SecurityMiddleware
+    'django.middleware.gzip.GZipMiddleware',  # Compresión Gzip para respuestas
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'checklist.middleware.CachedLanguageMiddleware',  # Middleware personalizado para idiomas
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -77,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'checklist.context_processors.language_context_processor',  # Añadir nuestro context processor
             ],
         },
     },
@@ -105,7 +110,6 @@ if ENVIRONMENT == 'production' or POSTGRES_LOCALLY == True:
     DATABASES['default'] = dj_database_url.parse(env('DATABASE_URL'))
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -128,7 +132,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# Configuración de internacionalización simplificada
+LANGUAGE_CODE = 'es'  # Idioma por defecto
 
 TIME_ZONE = 'UTC'
 
@@ -136,16 +141,39 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# Idiomas disponibles
+LANGUAGES = [
+    ('es', 'Spanish'),
+    ('en', 'English'),
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'checklist', 'static'),]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
+# Configuración para finders de archivos estáticos (sin compressor)
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # 'compressor.finders.CompressorFinder',  # Eliminado
+]
+
+# Configuración optimizada para WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Configuración adicional para WhiteNoise
+WHITENOISE_MAX_AGE = 604800  # 7 días en segundos
+WHITENOISE_MIMETYPES = {
+    'application/font-woff': 'application/octet-stream',
+    'application/font-woff2': 'application/octet-stream',
+    'text/css': 'text/css; charset=utf-8',
+}
+
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
@@ -155,4 +183,52 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-STATICSTORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Configuración de caché optimizada
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,  # 5 minutos
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+            'CULL_FREQUENCY': 3,  # Eliminar 1/3 de las entradas cuando se alcance MAX_ENTRIES
+        }
+    }
+}
+
+# Tiempo de caché para vistas
+CACHE_MIDDLEWARE_SECONDS = 300  # 5 minutos
+CACHE_MIDDLEWARE_KEY_PREFIX = 'dragtask'
+
+# Configuración para mejorar el rendimiento de las sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
+
+# Configuración para mejorar el rendimiento de las consultas a la base de datos
+CONN_MAX_AGE = 60  # Mantener conexiones a la base de datos abiertas por 60 segundos
+
+# Configuración de logging para depuración
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'checklist': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

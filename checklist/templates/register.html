@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% load static %}
+{% load custom_i18n %}
 
-{% block title %}Registro - DragTask{% endblock %}
+{% block title %}{% trans_tag "Register" %} - DragTask{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/register.css' %}">
 {% endblock %}
 
 {% block content %}
+{% with username_placeholder=LANGUAGE_CODE|yesno:"Enter your username,Ingresa tu nombre de usuario" email_placeholder=LANGUAGE_CODE|yesno:"Enter your email address,Ingresa tu correo electrónico" password_placeholder=LANGUAGE_CODE|yesno:"Enter your password,Ingresa tu contraseña" confirm_password_placeholder=LANGUAGE_CODE|yesno:"Confirm your password,Confirma tu contraseña" %}
 <section class="register-section">
   <div class="container">
     <div class="row justify-content-center">
@@ -16,14 +18,14 @@
         <div class="register-card">
           <div class="register-header text-center">
             <i class="bi bi-person-plus-fill register-icon"></i>
-            <h2>Crear Nueva Cuenta</h2>
-            <p class="text-muted">Únete a DragTask y comienza a organizar tus tareas</p>
+            <h2>{% trans_tag "Create New Account" %}</h2>
+            <p class="text-muted">{% trans_tag "Join DragTask and start organizing your tasks" %}</p>
           </div>
 
           {% if form.errors %}
           <div class="alert alert-danger" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            Por favor corrige los errores en el formulario.
+            {% trans_tag "Please correct the errors in the form." %}
           </div>
           {% endif %}
 
@@ -33,9 +35,9 @@
             <!-- Nombre de Usuario -->
             <div class="form-group mb-4">
               <label for="{{ form.username.id_for_label }}" class="form-label">
-                <i class="bi bi-person me-2"></i>Nombre de Usuario
+                <i class="bi bi-person me-2"></i>{% trans_tag "Username" %}
               </label>
-              {% render_field form.username class="form-control" placeholder="Ingresa tu nombre de usuario" %}
+              {% render_field form.username class="form-control" placeholder=username_placeholder %}
               {% if form.username.errors %}
               <div class="error-message">
                 {% for error in form.username.errors %}
@@ -43,15 +45,15 @@
                 {% endfor %}
               </div>
               {% endif %}
-              <div class="form-text">Tu nombre único para identificarte en la plataforma.</div>
+              <div class="form-text">{% trans_tag "Your unique name to identify you on the platform." %}</div>
             </div>
 
             <!-- Correo Electrónico -->
             <div class="form-group mb-4">
               <label for="{{ form.email.id_for_label }}" class="form-label">
-                <i class="bi bi-envelope me-2"></i>Correo Electrónico
+                <i class="bi bi-envelope me-2"></i>{% trans_tag "Email Address" %}
               </label>
-              {% render_field form.email class="form-control" placeholder="Ingresa tu correo electrónico" %}
+              {% render_field form.email class="form-control" placeholder=email_placeholder %}
               {% if form.email.errors %}
               <div class="error-message">
                 {% for error in form.email.errors %}
@@ -59,15 +61,15 @@
                 {% endfor %}
               </div>
               {% endif %}
-              <div class="form-text">Nunca compartiremos tu correo con terceros.</div>
+              <div class="form-text">{% trans_tag "We'll never share your email with third parties." %}</div>
             </div>
 
             <!-- Contraseña -->
             <div class="form-group mb-4">
               <label for="{{ form.password1.id_for_label }}" class="form-label">
-                <i class="bi bi-lock me-2"></i>Contraseña
+                <i class="bi bi-lock me-2"></i>{% trans_tag "Password" %}
               </label>
-              {% render_field form.password1 class="form-control" placeholder="Ingresa tu contraseña" %}
+              {% render_field form.password1 class="form-control" placeholder=password_placeholder %}
               {% if form.password1.errors %}
               <div class="error-message">
                 {% for error in form.password1.errors %}
@@ -75,15 +77,15 @@
                 {% endfor %}
               </div>
               {% endif %}
-              <div class="form-text">Usa al menos 8 caracteres con letras y números.</div>
+              <div class="form-text">{% trans_tag "Use at least 8 characters with letters and numbers." %}</div>
             </div>
 
             <!-- Confirmar Contraseña -->
             <div class="form-group mb-4">
               <label for="{{ form.password2.id_for_label }}" class="form-label">
-                <i class="bi bi-shield-lock me-2"></i>Confirmar Contraseña
+                <i class="bi bi-shield-lock me-2"></i>{% trans_tag "Confirm Password" %}
               </label>
-              {% render_field form.password2 class="form-control" placeholder="Confirma tu contraseña" %}
+              {% render_field form.password2 class="form-control" placeholder=confirm_password_placeholder %}
               {% if form.password2.errors %}
               <div class="error-message">
                 {% for error in form.password2.errors %}
@@ -96,16 +98,16 @@
             <!-- Botón de Envío -->
             <div class="d-grid gap-2 mt-4">
               <button type="submit" class="btn btn-primary btn-lg">
-                <i class="bi bi-check-circle me-2"></i>Crear Cuenta
+                <i class="bi bi-check-circle me-2"></i>{% trans_tag "Create Account" %}
               </button>
             </div>
           </form>
 
           <div class="register-footer text-center mt-4">
-            <p>¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="login-link">Inicia sesión aquí</a></p>
+            <p>{% trans_tag "Already have an account?" %} <a href="{% url 'login' %}" class="login-link">{% trans_tag "Log in here" %}</a></p>
             
             <div class="social-login mt-4">
-              <p class="text-muted">O regístrate con</p>
+              <p class="text-muted">{% trans_tag "Or register with" %}</p>
               <div class="social-buttons">
                 <button class="btn btn-outline-secondary social-btn">
                   <i class="bi bi-google"></i>
@@ -124,4 +126,5 @@
     </div>
   </div>
 </section>
+{% endwith %}
 {% endblock %}

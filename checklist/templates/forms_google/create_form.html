@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
-{% block title %}Crear Formulario - DragTask{% endblock %}
+{% block title %}{% trans_tag "Create Form" %} - DragTask{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'css/forms_google.css' %}?v={% now 'U' %}">
@@ -172,11 +173,11 @@
   <div class="container">
     <div class="row mb-4">
       <div class="col-md-8">
-        <p class="text-muted">Completa los detalles básicos para comenzar a crear tu formulario</p>
+        <p class="text-muted">{% trans_tag "Complete the basic details to start creating your form" %}</p>
       </div>
       <div class="col-md-4 text-md-end">
         <a href="{% url 'gform_list' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-2"></i>Volver
+          <i class="bi bi-arrow-left me-2"></i>{% trans_tag "Back" %}
         </a>
       </div>
     </div>
@@ -195,53 +196,53 @@
 
         <div class="form-container animate-fade-in">
           <div class="form-header">
-            <h2>Crear Nuevo Formulario</h2>
+            <h2>{% trans_tag "Create New Form" %}</h2>
           </div>
           <div class="form-body">
             <form method="post" class="animate-fade-in">
               {% csrf_token %}
               
               <div class="mb-4">
-                <label for="{{ form.title.id_for_label }}" class="form-label">Título del Formulario</label>
+                <label for="{{ form.title.id_for_label }}" class="form-label">{% trans_tag "Form Title" %}</label>
                 {{ form.title }}
                 {% if form.title.errors %}
                 <div class="invalid-feedback d-block">
                   {{ form.title.errors }}
                 </div>
                 {% endif %}
-                <div class="form-text">El título será visible para todos los que respondan el formulario.</div>
+                <div class="form-text">{% trans_tag "The title will be visible to everyone who responds to the form." %}</div>
               </div>
               
               <div class="mb-4">
-                <label for="{{ form.description.id_for_label }}" class="form-label">Descripción (opcional)</label>
+                <label for="{{ form.description.id_for_label }}" class="form-label">{% trans_tag "Description (optional)" %}</label>
                 {{ form.description }}
                 {% if form.description.errors %}
                 <div class="invalid-feedback d-block">
                   {{ form.description.errors }}
                 </div>
                 {% endif %}
-                <div class="form-text">Proporciona más contexto sobre el propósito del formulario.</div>
+                <div class="form-text">{% trans_tag "Provide more context about the purpose of the form." %}</div>
               </div>
               
               <div class="mb-4 form-check">
                 {{ form.is_published }}
                 <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
-                  Publicar formulario inmediatamente
+                  {% trans_tag "Publish form immediately" %}
                 </label>
                 {% if form.is_published.errors %}
                 <div class="invalid-feedback d-block">
                   {{ form.is_published.errors }}
                 </div>
                 {% endif %}
-                <div class="form-text">Si no lo publicas ahora, podrás hacerlo más tarde desde la página de edición.</div>
+                <div class="form-text">{% trans_tag "If you don't publish it now, you can do it later from the edit page." %}</div>
               </div>
               
               <div class="d-flex justify-content-between mt-4">
                 <a href="{% url 'gform_list' %}" class="btn btn-outline-secondary btn-action">
-                  <i class="bi bi-arrow-left"></i> Cancelar
+                  <i class="bi bi-arrow-left"></i> {% trans_tag "Cancel" %}
                 </a>
                 <button type="submit" class="btn btn-primary btn-action">
-                  <i class="bi bi-save"></i> Crear Formulario
+                  <i class="bi bi-save"></i> {% trans_tag "Create Form" %}
                 </button>
               </div>
             </form>

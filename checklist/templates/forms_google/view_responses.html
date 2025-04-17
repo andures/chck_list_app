@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
 {% block title %}Respuestas - {{ gform.title }}{% endblock %}
 
@@ -394,19 +395,19 @@
         <div class="responses-container">
             <div class="responses-header-content">
                 <div class="responses-badge">
-                    <i class="bi bi-bar-chart-fill"></i>Estadísticas
+                    <i class="bi bi-bar-chart-fill"></i>{% trans_tag "Statistics" %}
                 </div>
-                <h1 class="responses-title">Respuestas: {{ gform.title }}</h1>
+                <h1 class="responses-title">{% trans_tag "Responses" %}: {{ gform.title }}</h1>
                 <p class="responses-subtitle">
                     {% if responses %}
-                        Visualiza y analiza las {{ responses.count }} respuestas recibidas para este formulario.
+                        {% trans_tag "View and analyze the" %} {{ responses.count }} {% trans_tag "responses received for this form." %}
                     {% else %}
-                        Aún no hay respuestas para este formulario.
+                        {% trans_tag "There are no responses for this form yet." %}
                     {% endif %}
                 </p>
                 <div class="action-buttons">
                     <a href="{% url 'gform_edit' form_id=gform.id %}" class="btn btn-back action-btn">
-                        <i class="bi bi-arrow-left"></i>Volver al Formulario
+                        <i class="bi bi-arrow-left"></i>{% trans_tag "Back to Form" %}
                     </a>
                 </div>
             </div>
@@ -425,7 +426,7 @@
                             <i class="bi bi-list-ul"></i>
                         </div>
                         <div class="stat-value">{{ responses.count }}</div>
-                        <div class="stat-label">Total de respuestas</div>
+                        <div class="stat-label">{% trans_tag "Total responses" %}</div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -438,7 +439,7 @@
                                 {{ responses.first.created_at|date:"d/m/Y" }}
                             </span>
                         </div>
-                        <div class="stat-label">Última respuesta</div>
+                        <div class="stat-label">{% trans_tag "Last response" %}</div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -451,7 +452,7 @@
                                 {{ responses.last.created_at|date:"d/m/Y" }}
                             </span>
                         </div>
-                        <div class="stat-label">Primera respuesta</div>
+                        <div class="stat-label">{% trans_tag "First response" %}</div>
                     </div>
                 </div>
             </div>
@@ -459,17 +460,17 @@
             <!-- Tabla de respuestas -->
             <div class="response-card">
                 <div class="response-header">
-                    <h3><i class="bi bi-list-check me-2"></i>Lista de Respuestas</h3>
+                    <h3><i class="bi bi-list-check me-2"></i>{% trans_tag "Response List" %}</h3>
                 </div>
                 <div class="response-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Respondente</th>
-                                    <th>Fecha</th>
-                                    <th class="text-end">Acciones</th>
+                                    <th>{% trans_tag "ID" %}</th>
+                                    <th>{% trans_tag "Respondent" %}</th>
+                                    <th>{% trans_tag "Date" %}</th>
+                                    <th class="text-end">{% trans_tag "Actions" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -496,7 +497,7 @@
                                             <div class="avatar-circle">
                                                 <i class="bi bi-person"></i>
                                             </div>
-                                            <span class="text-muted">Anónimo</span>
+                                            <span class="text-muted">{% trans_tag "Anonymous" %}</span>
                                         </span>
                                         {% endif %}
                                     </td>
@@ -507,7 +508,7 @@
                                     </td>
                                     <td class="text-end">
                                         <a href="{% url 'gform_response_detail' response_id=response.id %}" class="btn btn-sm btn-view">
-                                            <i class="bi bi-eye"></i> Ver Detalle
+                                            <i class="bi bi-eye"></i> {% trans_tag "View Detail" %}
                                         </a>
                                     </td>
                                 </tr>
@@ -521,14 +522,14 @@
             <!-- Estado vacío -->
             <div class="empty-responses">
                 <i class="bi bi-inbox empty-icon"></i>
-                <h3 class="empty-title">Aún no hay respuestas para este formulario</h3>
-                <p class="empty-description">Cuando los usuarios respondan a tu formulario, verás sus respuestas aquí.</p>
+                <h3 class="empty-title">{% trans_tag "There are no responses for this form yet" %}</h3>
+                <p class="empty-description">{% trans_tag "When users respond to your form, you will see their responses here." %}</p>
                 <div class="d-flex justify-content-center gap-3">
                     <a href="{% url 'gform_edit' form_id=gform.id %}" class="btn btn-outline-secondary action-btn">
-                        <i class="bi bi-pencil"></i> Editar Formulario
+                        <i class="bi bi-pencil"></i> {% trans_tag "Edit Form" %}
                     </a>
                     <a href="{% url 'gform_view' form_id=gform.id %}" class="btn btn-primary action-btn">
-                        <i class="bi bi-eye"></i> Ver Formulario
+                        <i class="bi bi-eye"></i> {% trans_tag "View Form" %}
                     </a>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import TodoList, Task, GForm, GQuestion, GOption
+from .models import TodoList, Task, GForm, GQuestion, GOption, FormPermission, FormShareLink
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -77,12 +77,13 @@ class GQuestionForm(forms.ModelForm):
     """Formulario para crear/editar preguntas"""
     class Meta:
         model = GQuestion
-        fields = ['text', 'question_type', 'help_text', 'is_required', 'min_value', 'max_value', 'min_label', 'max_label', 'image']
+        fields = ['question_type', 'text', 'help_text', 'is_required', 'allow_attachments', 'min_value', 'max_value', 'min_label', 'max_label', 'image']
         widgets = {
-            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de la pregunta'}),
             'question_type': forms.Select(attrs={'class': 'form-select'}),
+            'text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de la pregunta'}),
             'help_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Texto de ayuda (opcional)'}),
             'is_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'allow_attachments': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'min_value': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '10'}),
             'max_value': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '10'}),
             'min_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Etiqueta mínima'}),
@@ -184,17 +185,53 @@ class GFormResponseForm(forms.Form):
                     widget=forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'})
                 )
             
-            # Añadir campos para archivos adjuntos en respuestas
-            file_field_name = f'file_{question.id}'
-            self.fields[file_field_name] = forms.FileField(
-                label="Adjuntar imagen o video (opcional)",
-                required=False,
-                widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*,video/*'})
-            )
-            
-            url_field_name = f'url_{question.id}'
-            self.fields[url_field_name] = forms.URLField(
-                label="O proporciona una URL de imagen/video (opcional)",
-                required=False,
-                widget=forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://ejemplo.com/imagen.jpg'})
-            )
+            # Añadir campos para archivos adjuntos en respuestas solo si la pregunta lo permite
+            if question.allow_attachments:
+                file_field_name = f'file_{question.id}'
+                self.fields[file_field_name] = forms.FileField(
+                    label="Adjuntar imagen o video (opcional)",
+                    required=False,
+                    widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*,video/*'})
+                )
+                
+                url_field_name = f'url_{question.id}'
+                self.fields[url_field_name] = forms.URLField(
+                    label="O proporciona una URL de imagen/video (opcional)",
+                    required=False,
+                    widget=forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://ejemplo.com/imagen.jpg'})
+                )
+
+# Formularios para permisos y compartir
+class FormPermissionForm(forms.Form):
+    """Formulario para añadir permisos a usuarios"""
+    user_email = forms.EmailField(
+        label="Correo electrónico del usuario",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'usuario@ejemplo.com'})
+    )
+    
+    permission_type = forms.ChoiceField(
+        label="Tipo de permiso",
+        choices=FormPermission.PERMISSION_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+class FormShareLinkForm(forms.Form):
+    """Formulario para crear enlaces de compartir"""
+    permission_type = forms.ChoiceField(
+        label="Tipo de permiso",
+        choices=FormShareLink.PERMISSION_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    EXPIRATION_CHOICES = [
+        ('never', 'Nunca expira'),
+        ('1d', '1 día'),
+        ('7d', '7 días'),
+        ('30d', '30 días'),
+    ]
+    
+    expires_in = forms.ChoiceField(
+        label="Expiración del enlace",
+        choices=EXPIRATION_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )

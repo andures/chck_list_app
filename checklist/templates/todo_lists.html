@@ -1,40 +1,70 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_i18n %}
 
-{% block title %}Mis Listas - DragTask{% endblock %}
+{% block title %}{% trans_tag "My Lists" %} - DragTask{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{% static 'css/todolist.css' %}">
+<!-- Estilos críticos inline para renderizado rápido -->
 <style>
-  /* Anular el efecto hover de las tarjetas list-card */
-  .list-card:hover {
-    transform: none !important;
-    box-shadow: var(--shadow-md) !important;
+  /* Estilos críticos para el primer renderizado */
+  .todolist-section {
+    min-height: calc(100vh - 400px);
+    padding-bottom: 60px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(14, 165, 233, 0.03));
   }
-  
-  /* Estilos para el botón de nueva lista con animación de expansión */
+  .list-card {
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e2e8f0;
+    position: relative;
+  }
+  .list-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(to right, #6366f1, #0ea5e9);
+    z-index: 1;
+  }
+  .list-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+  }
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+  }
+  /* Estilos para el botón circular con animación mejorada */
   .create-list-btn {
     width: 50px;
     height: 50px;
-    border-radius: 50px; /* Usamos 50px en lugar de 50% para permitir la expansión */
+    border-radius: 25px !important;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
     box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Transición con rebote */
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     position: relative;
     overflow: hidden;
     white-space: nowrap;
+    border: none;
+    color: white;
+    text-decoration: none;
   }
-
-  .create-list-btn:hover {
-    width: 160px; /* Ancho expandido para mostrar el texto */
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
-  }
-
   .create-list-btn i {
     font-size: 1.5rem;
     transition: all 0.3s ease;
@@ -43,11 +73,6 @@
     align-items: center;
     justify-content: center;
   }
-
-  .create-list-btn:hover i {
-    margin-right: 8px;
-  }
-
   .create-list-btn .btn-text {
     position: absolute;
     right: 50px;
@@ -59,21 +84,14 @@
     align-items: center;
     color: white;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
   }
-
-  .create-list-btn:hover .btn-text {
-    opacity: 1;
-    transform: translateX(0);
-    position: relative;
-    right: 0;
-  }
-
   /* Estilos para el botón de crear lista en el estado vacío */
   .empty-state-create-btn {
     margin-top: 1.5rem;
     width: 70px;
     height: 70px;
-    border-radius: 15px;
+    border-radius: 50% !important;
     padding: 0;
     display: flex;
     align-items: center;
@@ -81,94 +99,45 @@
     background: linear-gradient(135deg, #7b78e5, #5e60ce);
     border: none;
     box-shadow: 0 10px 20px rgba(94, 96, 206, 0.4);
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-
-  .empty-state-create-btn::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-    z-index: 1;
-  }
-
   .empty-state-create-btn:hover {
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(-5px);
     box-shadow: 0 15px 25px rgba(94, 96, 206, 0.5);
   }
-
-  .empty-state-create-btn i {
-    font-size: 2.5rem;
-    color: white;
-    z-index: 2;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  [data-bs-theme="dark"] .list-card {
+    background-color: #334155;
+    border-color: #475569;
   }
-
-  /* Anular el efecto hover del empty-state */
-  .empty-state:hover {
-    transform: none !important;
-    box-shadow: none !important;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    background-color: var(--neutral-50);
-    border-radius: var(--radius-lg);
-    border: 1px dashed var(--neutral-300);
-    transition: all var(--transition-normal);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  /* Animación de pulso para el botón en estado vacío */
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(94, 96, 206, 0.7);
-    }
-    70% {
-      box-shadow: 0 0 0 15px rgba(94, 96, 206, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(94, 96, 206, 0);
-    }
-  }
-  
-  .empty-state .empty-state-create-btn {
-    animation: pulse 2s infinite;
-  }
-  
-  .empty-state .empty-state-create-btn:hover {
-    animation: none;
+  [data-bs-theme="dark"] .todolist-section {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(14, 165, 233, 0.05));
   }
 </style>
+
+<!-- Cargar CSS principal -->
+<link rel="stylesheet" href="{% static 'css/todolist.css' %}">
 {% endblock %}
 
 {% block content %}
+{% with todo_text=LANGUAGE_CODE|yesno:"to do,por hacer" in_progress_text=LANGUAGE_CODE|yesno:"in progress,en progreso" completed_text=LANGUAGE_CODE|yesno:"completed,completadas" delete_confirm_message=LANGUAGE_CODE|yesno:"Are you sure you want to delete this list?,¿Estás seguro de que quieres eliminar esta lista?" list_created_message=LANGUAGE_CODE|yesno:"List created successfully,Lista creada correctamente" list_deleted_message=LANGUAGE_CODE|yesno:"List deleted successfully,Lista eliminada correctamente" %}
 <section class="todolist-section py-5">
   <div class="container">
     <div class="row mb-4">
       <div class="col-lg-8">
-        <h1 class="fw-bold">Mis Listas de Tareas</h1>
-        <p class="text-muted">Organiza tus tareas en listas y gestiona tu productividad</p>
+        <h1 class="fw-bold">{% trans_tag "My Task Lists" %}</h1>
+        <p class="text-muted">{% trans_tag "Organize your tasks in lists and manage your productivity" %}</p>
       </div>
       <div class="col-lg-4 text-lg-end">
         <div class="d-flex flex-column flex-sm-row gap-2 justify-content-lg-end">
-          <a href="{% url 'create_todo_list' %}" class="btn create-list-btn">
+          <a href="{% url 'create_todo_list' %}" class="create-list-btn">
             <i class="bi bi-plus"></i>
-            <span class="btn-text">Crear lista</span>
+            <span class="btn-text">{% trans_tag "Create list" %}</span>
           </a>
           <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
-            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            <i class="bi bi-speedometer2 me-2"></i>{% trans_tag "Dashboard" %}
           </a>
         </div>
       </div>
@@ -177,22 +146,22 @@
     <div class="row">
       {% if lists %}
         {% for list in lists %}
-        <div class="col-md-6 col-lg-4 mb-4 animate-fade-in">
+        <div class="col-md-6 col-lg-4 mb-4">
           <div class="list-card">
             <div class="list-card-header">
               <h3>{{ list.name }}</h3>
               <div class="list-stats">
-                <span class="badge todo-badge">{{ list.todo_count }} por hacer</span>
-                <span class="badge progress-badge">{{ list.progress_count }} en progreso</span>
-                <span class="badge done-badge">{{ list.done_count }} completadas</span>
+                <span class="badge todo-badge">{{ list.todo_count }} {{ todo_text }}</span>
+                <span class="badge progress-badge">{{ list.progress_count }} {{ in_progress_text }}</span>
+                <span class="badge done-badge">{{ list.done_count }} {{ completed_text }}</span>
               </div>
             </div>
             <div class="list-card-body p-3">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="text-muted small">
-                  <i class="bi bi-calendar3 me-1"></i> Creada: {{ list.created_at|date:"d/m/Y" }}
+                  <i class="bi bi-calendar3 me-1"></i> {% trans_tag "Created" %}: {{ list.created_at|date:"d/m/Y" }}
                 </span>
-                <span class="badge bg-primary">{{ list.tasks.count }} tareas</span>
+                <span class="badge bg-primary">{{ list.tasks.count }} {% trans_tag "tasks" %}</span>
               </div>
               
               <!-- Barra de progreso -->
@@ -206,7 +175,7 @@
                      data-total-count="{{ list.tasks.count }}"></div>
               </div>
               <div class="d-flex justify-content-between small text-muted mb-3">
-                <span>Progreso</span>
+                <span>{% trans_tag "Progress" %}</span>
                 <span class="progress-percentage" 
                       data-done-count="{{ list.done_count }}"
                       data-total-count="{{ list.tasks.count }}">0%</span>
@@ -214,10 +183,10 @@
             </div>
             <div class="list-card-actions">
               <a href="{% url 'view_todo_list' list.id %}" class="btn btn-primary">
-                <i class="bi bi-eye me-2"></i>Ver
+                <i class="bi bi-eye me-2"></i>{% trans_tag "View" %}
               </a>
               <a href="{% url 'delete_todo_list' list.id %}" class="btn btn-outline-danger">
-                <i class="bi bi-trash me-2"></i>Eliminar
+                <i class="bi bi-trash me-2"></i>{% trans_tag "Delete" %}
               </a>
             </div>
           </div>
@@ -227,10 +196,10 @@
         <div class="col-12">
           <div class="empty-state">
             <i class="bi bi-clipboard-check"></i>
-            <h3>No tienes listas de tareas</h3>
-            <p>Crea tu primera lista para comenzar a organizar tus tareas y aumentar tu productividad.</p>
+            <h3>{% trans_tag "You don't have task lists" %}</h3>
+            <p>{% trans_tag "Create your first list to start organizing your tasks and increase your productivity." %}</p>
             <div class="d-flex justify-content-center mt-3">
-              <a href="{% url 'create_todo_list' %}" class="btn btn-primary btn-lg empty-state-create-btn">
+              <a href="{% url 'create_todo_list' %}" class="empty-state-create-btn">
                 <i class="bi bi-plus"></i>
               </a>
             </div>
@@ -243,6 +212,7 @@
 
 <!-- Toast container -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+{% endwith %}
 {% endblock %}
 
 {% block scripts %}
@@ -252,64 +222,97 @@
     const progressBars = document.querySelectorAll('.progress-bar');
     const progressPercentages = document.querySelectorAll('.progress-percentage');
     
-    // Función para calcular el porcentaje
-    function calculatePercentage(doneCount, totalCount) {
-      if (totalCount <= 0) return 0;
-      return Math.round((doneCount / totalCount) * 100);
+    // Actualizar barras de progreso y porcentajes
+    function updateProgressElements() {
+      progressBars.forEach(bar => {
+        const doneCount = parseInt(bar.getAttribute('data-done-count') || '0');
+        const totalCount = parseInt(bar.getAttribute('data-total-count') || '0');
+        const percentage = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+        
+        bar.style.width = percentage + '%';
+        bar.setAttribute('aria-valuenow', percentage.toString());
+      });
+      
+      progressPercentages.forEach(element => {
+        const doneCount = parseInt(element.getAttribute('data-done-count') || '0');
+        const totalCount = parseInt(element.getAttribute('data-total-count') || '0');
+        const percentage = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+        
+        element.textContent = percentage + '%';
+      });
     }
     
-    // Actualizar barras de progreso
-    progressBars.forEach(bar => {
-      const doneCount = parseInt(bar.getAttribute('data-done-count') || '0');
-      const totalCount = parseInt(bar.getAttribute('data-total-count') || '0');
-      const percentage = calculatePercentage(doneCount, totalCount);
-      
-      bar.style.width = percentage + '%';
-      bar.setAttribute('aria-valuenow', percentage.toString());
-    });
+    // Ejecutar inmediatamente
+    updateProgressElements();
     
-    // Actualizar textos de porcentaje
-    progressPercentages.forEach(element => {
-      const doneCount = parseInt(element.getAttribute('data-done-count') || '0');
-      const totalCount = parseInt(element.getAttribute('data-total-count') || '0');
-      const percentage = calculatePercentage(doneCount, totalCount);
+    // Configurar botón de crear lista con animación mejorada
+    const createListBtn = document.querySelector('.create-list-btn');
+    if (createListBtn) {
+      // Asegurarse de que el botón comience en estado correcto
+      const btnText = createListBtn.querySelector('.btn-text');
+      if (btnText) {
+        btnText.style.opacity = '0';
+        btnText.style.transform = 'translateX(10px)';
+        btnText.style.position = 'absolute';
+        btnText.style.right = '50px';
+      }
       
-      element.textContent = percentage + '%';
-    });
+      createListBtn.addEventListener('mouseenter', function() {
+        const btnText = this.querySelector('.btn-text');
+        if (btnText) {
+          btnText.style.opacity = '1';
+          btnText.style.transform = 'translateX(0)';
+          btnText.style.position = 'relative';
+          btnText.style.right = '0';
+        }
+        // Mantener la forma circular en los extremos
+        this.style.width = '160px';
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 6px 15px rgba(99, 102, 241, 0.4)';
+      });
+      
+      createListBtn.addEventListener('mouseleave', function() {
+        const btnText = this.querySelector('.btn-text');
+        if (btnText) {
+          btnText.style.opacity = '0';
+          btnText.style.transform = 'translateX(10px)';
+          btnText.style.position = 'absolute';
+          btnText.style.right = '50px';
+        }
+        this.style.width = '50px';
+        this.style.transform = '';
+        this.style.boxShadow = '';
+      });
+    }
     
-    // Código para mostrar toasts si es necesario
-    function showToast(message, type = 'info') {
+    // Mostrar toast si es necesario
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('created') === 'true' || urlParams.get('deleted') === 'true') {
+      const message = urlParams.get('created') === 'true' 
+        ? '{% if LANGUAGE_CODE == "en" %}List created successfully{% else %}Lista creada correctamente{% endif %}' 
+        : '{% if LANGUAGE_CODE == "en" %}List deleted successfully{% else %}Lista eliminada correctamente{% endif %}';
+      
       const toast = document.createElement('div');
-      toast.className = `toast toast-${type} show`;
+      toast.className = 'toast toast-success show';
       toast.setAttribute('role', 'alert');
       toast.setAttribute('aria-live', 'assertive');
       toast.setAttribute('aria-atomic', 'true');
       
-      toast.innerHTML = `
-        <div class="toast-body">
-          ${message}
-        </div>
-      `;
+      toast.innerHTML = `<div class="toast-body">${message}</div>`;
       
       const toastContainer = document.getElementById('toastContainer');
-      toastContainer.appendChild(toast);
-      
-      // Eliminar después de 3 segundos
-      setTimeout(() => {
-        toast.classList.remove('show');
+      if (toastContainer) {
+        toastContainer.appendChild(toast);
+        
         setTimeout(() => {
-          toastContainer.removeChild(toast);
-        }, 300);
-      }, 3000);
-    }
-    
-    // Mostrar toast de bienvenida
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('created') === 'true') {
-      showToast('Lista creada correctamente', 'success');
-    }
-    if (urlParams.get('deleted') === 'true') {
-      showToast('Lista eliminada correctamente', 'success');
+          toast.classList.remove('show');
+          setTimeout(() => {
+            if (toastContainer.contains(toast)) {
+              toastContainer.removeChild(toast);
+            }
+          }, 300);
+        }, 3000);
+      }
     }
   });
 </script>
